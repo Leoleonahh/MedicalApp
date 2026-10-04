@@ -1,0 +1,468 @@
+
+/* =================================
+   Order Detail Page
+================================= */
+
+.orders-page {
+  min-height: 100vh;
+  width: 100%;
+
+  display: flex;
+
+  background: var(--bg);
+  color: var(--text);
+
+  box-sizing: border-box;
+}
+
+/* =================================
+   Left Accent
+================================= */
+
+.left-accent {
+  width: 88px;
+  min-height: 100vh;
+
+  flex-shrink: 0;
+
+  background: linear-gradient(
+    180deg,
+    #ffd0e2,
+    #ffe1ec
+  );
+
+  border-right: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+/* =================================
+   Main Container
+================================= */
+
+.orders-container {
+  flex: 1;
+
+  width: 100%;
+
+  padding: 30px 32px 50px;
+
+  box-sizing: border-box;
+}
+
+/* =================================
+   Header
+================================= */
+
+.orders-header {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto 24px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+}
+
+/* =================================
+   Back Button
+================================= */
+
+.manage-back {
+  width: 46px;
+  height: 46px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 14px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+
+  text-decoration: none;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.manage-back:hover {
+  transform: translateX(-3px);
+
+  box-shadow: var(--shadow);
+}
+
+/* =================================
+   Page Title
+================================= */
+
+.orders-title {
+  margin: 0;
+
+  font-family: Georgia, "Times New Roman", serif;
+
+  font-size: 24px;
+  font-weight: 700;
+
+  letter-spacing: -0.3px;
+}
+
+/* =================================
+   Detail Card
+================================= */
+
+.order-detail-card {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto;
+
+  padding: 32px;
+
+  box-sizing: border-box;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 20px;
+
+  box-shadow: var(--shadow);
+}
+
+/* =================================
+   Detail Row
+================================= */
+
+.detail-row {
+  width: 100%;
+
+  min-height: 54px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 24px;
+
+  padding: 14px 0;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+/* =================================
+   Detail Label
+================================= */
+
+.detail-label {
+  width: 190px;
+  min-width: 190px;
+
+  color: var(--muted);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  line-height: 1.5;
+}
+
+/* =================================
+   Detail Value
+================================= */
+
+.detail-value {
+  flex: 1;
+
+  min-width: 0;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  line-height: 1.6;
+
+  word-break: break-word;
+}
+
+/* =================================
+   Status Select
+================================= */
+
+.status-select {
+  min-width: 180px;
+  height: 44px;
+
+  padding: 0 14px;
+
+  border-radius: 12px;
+
+  border: 1px solid var(--border);
+
+  background: var(--surface-soft);
+  color: var(--text);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  outline: none;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.status-select:focus {
+  border-color: #ff9fc4;
+
+  box-shadow:
+    0 0 0 4px rgba(255, 159, 196, 0.15);
+}
+
+/* =================================
+   Detail Actions
+================================= */
+
+.detail-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  margin-top: 24px;
+}
+
+/* =================================
+   General Button
+================================= */
+
+.btn {
+  min-height: 46px;
+
+  padding: 0 20px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  border: none;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+/* =================================
+   Cancel Button
+================================= */
+
+.btn-cancel {
+  background: #ff6b6b;
+
+  color: #fff;
+
+  box-shadow:
+    0 6px 16px rgba(255, 107, 107, 0.18);
+}
+
+.btn-cancel:hover {
+  box-shadow:
+    0 9px 20px rgba(255, 107, 107, 0.25);
+}
+
+.btn-cancel:active {
+  transform: translateY(0);
+}
+
+.btn-ready {
+  background: #18a26a;
+  color: white;
+}
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.item-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.item-name {
+  flex: 1;
+  font-weight: 700;
+}
+.item-qty {
+  min-width: 48px;
+  text-align: right;
+  color: var(--muted);
+}
+.item-price {
+  min-width: 120px;
+  text-align: right;
+}
+
+/* =================================
+   Tablet
+================================= */
+
+@media (max-width: 900px) {
+
+  .left-accent {
+    width: 56px;
+  }
+
+  .orders-container {
+    padding: 24px 20px 40px;
+  }
+
+  .order-detail-card {
+    padding: 26px 24px;
+
+    border-radius: 18px;
+  }
+
+  .orders-title {
+    font-size: 22px;
+  }
+
+  .detail-label {
+    width: 160px;
+    min-width: 160px;
+  }
+}
+
+/* =================================
+   Mobile
+================================= */
+
+@media (max-width: 760px) {
+
+  .orders-page {
+    display: block;
+  }
+
+  .left-accent {
+    display: none;
+  }
+
+  .orders-container {
+    padding: 18px 14px 30px;
+  }
+
+  .orders-header {
+    gap: 10px;
+
+    margin-bottom: 18px;
+  }
+
+  .manage-back {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 12px;
+  }
+
+  .orders-title {
+    font-size: 20px;
+  }
+
+  .order-detail-card {
+    padding: 22px 18px;
+
+    border-radius: 16px;
+  }
+
+  .detail-row {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 6px;
+
+    padding: 14px 0;
+  }
+
+  .detail-label {
+    width: 100%;
+    min-width: 0;
+
+    font-size: 13px;
+  }
+
+  .detail-value {
+    width: 100%;
+
+    font-size: 14px;
+  }
+
+  .status-select {
+    width: 100%;
+
+    min-width: 0;
+  }
+
+  .detail-actions {
+    flex-direction: column;
+
+    margin-top: 20px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+/* =================================
+   Small Mobile
+================================= */
+
+@media (max-width: 420px) {
+
+  .orders-container {
+    padding: 16px 12px 28px;
+  }
+
+  .orders-title {
+    font-size: 18px;
+  }
+
+  .order-detail-card {
+    padding: 20px 15px;
+  }
+
+  .detail-value {
+    font-size: 13px;
+  }
+
+  .status-select {
+    height: 46px;
+
+    font-size: 13px;
+  }
+}
+

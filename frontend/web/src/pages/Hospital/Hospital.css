@@ -1,0 +1,89 @@
+.hospital-page {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.hospital-navbar {
+  width: 100%;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 24px;
+  box-shadow: var(--shadow);
+}
+
+.hospital-navbar a {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.hospital-navbar h2 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--text);
+}
+
+.map-container {
+  width: 100%;
+  display:flex;
+  justify-content: center;
+  padding: 18px 24px;
+}
+
+.map-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.map-wrapper iframe {
+  display: block;
+  width: 100%;
+  height: 480px; /* desktop default */
+  border: 0;
+}
+
+.map-location-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.map-location-status button {
+  padding: 7px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .hospital-navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .map-container {
+    padding: 16px;
+  }
+
+  .map-wrapper iframe {
+    height: 360px;
+  }
+}

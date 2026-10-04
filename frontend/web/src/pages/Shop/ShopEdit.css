@@ -1,0 +1,389 @@
+
+/* =================================
+   Shop Edit Page
+================================= */
+
+.shop-edit-page {
+  min-height: 100vh;
+  width: 100%;
+
+  padding: 32px 24px 60px;
+
+  box-sizing: border-box;
+
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* =================================
+   Header
+================================= */
+
+.shop-header {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto 24px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+}
+
+.shop-back {
+  width: 46px;
+  height: 46px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+
+  text-decoration: none;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.shop-back:hover {
+  transform: translateX(-3px);
+  box-shadow: var(--shadow);
+}
+
+.shop-title {
+  flex: 1;
+
+  margin: 0;
+
+  text-align: center;
+
+  font-size: 24px;
+  font-weight: 700;
+
+  letter-spacing: -0.3px;
+}
+
+/* =================================
+   Edit Card
+================================= */
+
+.shop-card {
+  width: 100%;
+  max-width: 700px;
+
+  margin: 0 auto;
+
+  padding: 36px;
+
+  box-sizing: border-box;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 20px;
+
+  box-shadow: var(--shadow);
+}
+
+/* =================================
+   Form
+================================= */
+
+.shop-edit-form {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+/* =================================
+   Label
+================================= */
+
+.shop-label {
+  margin-top: 8px;
+
+  color: var(--muted);
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.shop-label:first-child {
+  margin-top: 0;
+}
+
+/* =================================
+   Input
+================================= */
+
+.shop-edit-form input {
+  width: 100%;
+  height: 52px;
+
+  padding: 0 16px;
+
+  box-sizing: border-box;
+
+  border-radius: 14px;
+
+  border: 1px solid var(--border);
+
+  background: var(--surface-soft);
+  color: var(--text);
+
+  font-size: 15px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.shop-edit-form input::placeholder {
+  color: #999;
+}
+
+.shop-edit-form input:focus {
+  border-color: #ff9fc4;
+
+  background: var(--surface);
+
+  box-shadow:
+    0 0 0 4px rgba(255, 159, 196, 0.15);
+}
+
+.shop-error {
+  margin: 0;
+  color: #d93025;
+}
+
+/* =================================
+   Actions
+================================= */
+
+.shop-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  margin-top: 18px;
+}
+
+/* =================================
+   Cancel Button
+================================= */
+
+.shop-cancel {
+  min-height: 46px;
+
+  padding: 0 20px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: transparent;
+
+  color: var(--text);
+
+  border: 1px solid var(--border);
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.shop-cancel:hover {
+  background: var(--surface-soft);
+
+  transform: translateY(-1px);
+
+  box-shadow: var(--shadow);
+}
+
+/* =================================
+   Save Button
+================================= */
+
+.shop-save {
+  min-height: 46px;
+
+  padding: 0 24px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: linear-gradient(
+    135deg,
+    #ffb6d1,
+    #ff9fc4
+  );
+
+  color: #111;
+
+  border: none;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 7px 18px rgba(255, 159, 196, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.shop-save:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 24px rgba(255, 159, 196, 0.32);
+}
+
+.shop-save:active {
+  transform: translateY(0);
+}
+
+/* =================================
+   Tablet
+================================= */
+
+@media (max-width: 900px) {
+
+  .shop-edit-page {
+    padding: 24px 18px 40px;
+  }
+
+  .shop-card {
+    padding: 30px 24px;
+
+    border-radius: 18px;
+  }
+
+  .shop-title {
+    font-size: 21px;
+  }
+}
+
+/* =================================
+   Mobile
+================================= */
+
+@media (max-width: 600px) {
+
+  .shop-edit-page {
+    padding: 18px 14px 30px;
+  }
+
+  .shop-header {
+    gap: 10px;
+
+    margin-bottom: 18px;
+  }
+
+  .shop-back {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 12px;
+  }
+
+  .shop-title {
+    font-size: 19px;
+  }
+
+  .shop-card {
+    padding: 24px 18px;
+
+    border-radius: 16px;
+  }
+
+  .shop-edit-form {
+    gap: 8px;
+  }
+
+  .shop-label {
+    font-size: 13px;
+  }
+
+  .shop-edit-form input {
+    height: 50px;
+
+    padding: 0 14px;
+
+    font-size: 14px;
+
+    border-radius: 13px;
+  }
+
+  .shop-actions {
+    flex-direction: column-reverse;
+
+    gap: 10px;
+
+    margin-top: 16px;
+  }
+
+  .shop-cancel,
+  .shop-save {
+    width: 100%;
+
+    min-height: 50px;
+  }
+}
+
+/* =================================
+   Small Mobile
+================================= */
+
+@media (max-width: 420px) {
+
+  .shop-edit-page {
+    padding: 16px 12px 28px;
+  }
+
+  .shop-card {
+    padding: 20px 15px;
+  }
+
+  .shop-title {
+    font-size: 18px;
+  }
+
+  .shop-edit-form input {
+    height: 48px;
+  }
+}
+

@@ -1,0 +1,281 @@
+.result-page {
+  min-height: 100vh;
+  background: var(--bg);
+  padding-bottom: 40px;
+}
+
+.result-header {
+  width: 100%;
+  background: linear-gradient(90deg, #ffe7f5 0%, #f5e6f3 100%);
+  display: flex;
+  align-items: center;
+  padding: 18px 24px;
+  box-shadow: var(--shadow);
+}
+
+.result-back {
+  color: var(--text);
+  font-size: 26px;
+}
+
+.result-container {
+  width: min(1140px, 100%);
+  margin: 32px auto;
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 28px;
+  padding: 0 24px;
+}
+
+.result-left,
+.result-right {
+  display: grid;
+  gap: 24px;
+}
+
+.result-photo-card,
+.result-medicine-card,
+.result-name-card,
+.result-detail-card {
+  background: var(--surface);
+  border-radius: 30px;
+  box-shadow: var(--shadow);
+}
+
+.result-photo-card {
+  min-height: 240px;
+  display: grid;
+  place-items: center;
+  gap: 16px;
+  padding: 28px;
+}
+
+.result-photo-icon {
+  font-size: 60px;
+  color: var(--muted);
+}
+
+.result-photo {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: 16px;
+}
+
+.result-photo-card p {
+  margin: 0;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.result-status {
+  margin: 40px auto;
+  color: var(--muted);
+  text-align: center;
+}
+
+.result-status.error {
+  color: #c0395a;
+}
+
+.result-medicine-card {
+  padding: 26px;
+}
+
+.result-medicine-card h3 {
+  margin: 0 0 18px;
+  font-size: 20px;
+  color: var(--text);
+}
+
+.result-name-card {
+  padding: 28px;
+  position: relative;
+}
+
+.result-name-card h2 {
+  margin: 0 0 10px;
+  font-size: 22px;
+}
+
+.result-name-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.result-name-card p + p {
+  margin-top: 8px;
+}
+
+.danger-level {
+  position: absolute;
+  right: 24px;
+  top: 24px;
+  width: 22px;
+  height: 22px;
+  background: #ff5e7a;
+  border-radius: 50%;
+}
+
+.result-detail-card {
+  padding: 28px;
+}
+
+.result-reference-card {
+  padding: 24px 28px;
+  background: var(--surface);
+  border-radius: 30px;
+  box-shadow: var(--shadow);
+}
+
+.result-reference-card h3 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.result-reference-card ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.result-reference-card a {
+  color: #356b9a;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+
+.result-detail-card h3 {
+  margin: 0 0 18px;
+  font-size: 20px;
+}
+
+.detail-content {
+  min-height: 180px;
+  color: var(--muted);
+}
+
+.result-action {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.action-card {
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  color: var(--text);
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease;
+}
+
+button.action-card {
+  width: 100%;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.action-card:hover {
+  transform: translateY(-3px);
+}
+
+.action-icon {
+  font-size: 34px;
+}
+
+.action-card span {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pharmacy {
+  color: #8f4efc;
+}
+
+.phone {
+  color: #ff5e7a;
+}
+
+.map {
+  color: #4285f4;
+}
+
+.hotline-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.hotline-popup {
+  position: relative;
+  width: min(420px, 100%);
+  padding: 28px;
+  border-radius: 24px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.hotline-popup h2 {
+  margin: 0 0 18px;
+}
+
+.hotline-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.hotline-item {
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--surface-soft);
+}
+
+.hotline-item h3,
+.hotline-item p {
+  margin: 0 0 8px;
+}
+
+.hotline-item p {
+  color: var(--muted);
+}
+
+.hotline-call {
+  display: inline-block;
+  color: #c0395a;
+  font-weight: 700;
+}
+
+.hotline-error {
+  color: #c0395a;
+}
+
+@media (max-width: 900px) {
+  .result-container {
+    grid-template-columns: 1fr;
+  }
+
+  .result-action {
+    grid-template-columns: 1fr;
+  }
+}

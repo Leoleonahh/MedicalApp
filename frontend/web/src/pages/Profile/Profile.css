@@ -1,0 +1,145 @@
+.profile-page {
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 24px;
+  color: var(--text);
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 1100px;
+  margin: 0 auto 24px;
+}
+
+.profile-back,
+.profile-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 50px;
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 14px 30px rgba(55, 36, 79, 0.08);
+  text-decoration: none;
+  border: 1px solid var(--border);
+}
+
+.profile-header-title {
+  flex: 1;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.profile-card {
+  background: var(--surface);
+  border-radius: 28px;
+  padding: 32px;
+  box-shadow: var(--shadow);
+  margin: 0 auto 22px;
+  max-width: 1100px;
+}
+
+.profile-avatar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.profile-avatar-icon {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #f6e5f1;
+  color: #9b5ca1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+  font-weight: 700;
+}
+
+.profile-info {
+  display: grid;
+  gap: 18px;
+}
+
+.profile-name {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.profile-field {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  background: var(--surface-soft);
+  border-radius: 20px;
+}
+
+.profile-field span {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.profile-field strong {
+  font-size: 16px;
+  color: var(--text);
+}
+
+.profile-actions {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.profile-error {
+  max-width: 1100px;
+  margin: 0 auto 18px;
+  color: #d93025;
+  text-align: center;
+}
+
+.profile-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 18px;
+  border-radius: 18px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.profile-button.primary {
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.profile-button.secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+@media(max-width:760px){
+  .profile-header{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile-header-title{
+    margin: 0;
+  }
+
+  .profile-card {
+    padding: 26px;
+  }
+}

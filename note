@@ -1,0 +1,82 @@
+API Update profile http://localhost:5000/api/auth/profile ( ปรับเป็น jwt แล้ว)
+API register http://localhost:5000/api/auth/register ( ปรับเป็น jwt แล้ว)
+API login http://localhost:5000/api/auth/login ( ปรับเป็น jwt แล้ว)
+API Change-Password http://localhost:5000/api/auth/change-password ( ปรับเป็น jwt แล้ว)
+
+------------------------SendGrid API-------------------------------
+API forgot password http://localhost:5000/api/auth/forgot-password ( ปรับเป็น jwt ไม่ได้เพราะผู้ใช้ยังไม่ได้ login เลยไม่สามารถสร้าง token ได้)
+API verify_OTP http://localhost:5000/api/auth/verify-otp ( ปรับเป็น jwt ไม่ได้เพราะผู้ใช้ยังไม่ได้ login เลยไม่สามารถสร้าง token ได้
+API Resetpassword http://localhost:5000/api/auth/reset-password ( ปรับเป็น jwt ไม่ได้เพราะผู้ใช้ยังไม่ได้ login เลยไม่สามารถสร้าง token ได้)
+-------------------------------------------------------------------
+
+API model_info http://localhost:5000/api/train
+API predict http://localhost:5000/api/predict ( ปรับเป็น jwt แล้ว)
+API อัพโหลดบาดแผล http://localhost:5000/api/wound/upload ( ปรับเป็น jwt แล้ว)
+API เบอร์โทรสายด่วน http://localhost:5000/api/hotlines
+
+------------------------------------------------------------------
+
+API recommend http://localhost:5000/api/recommendations/7
+API ของยาทั้งหมด http://localhost:5000/api/medicines
+API คำอธิบายยาของแต่ละชนิด http://localhost:5000/api/medicines/:medicine_name
+API ของยาที่แนะนำแต่ละบาดแผล http://localhost:5000/api/medicines/wound-type/:wound_type
+
+API ประวัติบาดแผลที่ผู้ใช้อัพโหลด http://localhost:5000/api/wound/history/list/all ( ปรับเป็น jwt แล้ว)
+API รายละเอียดของบาดแผลนั้นๆ http://localhost:5000/api/wound/detail/1 ( ปรับเป็น jwt แล้ว)
+
+-------------------------------------------------------------------
+API ลงทะเบียนร้านขายยา http://localhost:5000/pharmacies/register ( ปรับเป็น jwt แล้ว)
+API ร้านรออนุมัติ http://localhost:5000/admin/pharmacies/pending ( ปรับเป็น jwt แล้ว)
+API อนุมัติร้าน PATCH http://localhost:500/admin/pharmacies/1/approve ( ปรับเป็น jwt แล้ว)
+API ปฏิเสธร้าน PATCH http://localhost:5000/admin/pharmacies/1/reject ( ปรับเป็น jwt แล้ว)
+
+-------------------------------------------------------------------
+API จัดการราคาและสต็อกสินค้า PUT http://localhost:5000/pharmacies/1/products/2
+API ดูสินค้าทั้งหมดของร้าน http://localhost:5000/pharmacies/1/products
+API ดูรายละเอียดร้านค้า http://localhost:5000/pharmacies/1
+
+-----------------------------cart---------------------------------------
+API เพิ่มสินค้าลงตระกร้า http://localhost:5000/cart/add ( ปรับเป็น jwt แล้ว)
+API ดูสินค้าในตระกร้าทั้งหมด http://localhost:5000/cart ( ปรับเป็น jwt แล้ว)
+API อัพเดดจำนวนสินค้า http://localhost:5000/cart/item/1 ( ปรับเป็น jwt แล้ว)
+API ลบสินค้าออกจากตระกร้า http://localhost:5000/cart/item/2 ( ปรับเป็น jwt แล้ว)
+API ล้างสินค้าทุกอย่างในตะกร้า http://localhost:5000/cart/clear ( ปรับเป็น jwt แล้ว)
+
+-------------------------------order-checkout---------------------------
+API สั่ง order http://localhost:5000/orders/checkout ( ปรับเป็น jwt แล้ว)
+API อัพเดดเบอร์ promtpay ของร้าน http://localhost:5000/pharmacies/1/promptpay ( ปรับเป็น jwt แล้ว)
+API สร้าง qrcode http://localhost:5000/orders/2/qrcode ( ปรับเป็น jwt แล้ว)
+API ทดสอบเปิดรูป slips http://localhost:5000/uploads/slips/images.jpg
+API อัพโหลดสลิป http://localhost:5000/orders/2/upload-slip
+
+API ร้านค้าดูการชำระเงิน http://localhost:5000/pharmacy/1/orders/pending-payment
+API ร้านค้าปฏิเสธการชำระเงิน http://localhost:5000/orders/1/reject-payment
+API ร้านค้ายืนยันการชำระเงิน http://localhost:5000/orders/2/confirm-payment
+API อัพเดดสถานะ order http://localhost:5000/orders/2/status ( ปรับเป็น jwt แล้ว)
+
+API ดู order ทั้งหมดของผู้ซื้อ http://localhost:5000/orders/my-orders ( ปรับเป็น jwt แล้ว)
+API ดูรายละเอียดของ order นั้นๆ http://localhost:5000/orders/2 ( ปรับเป็น jwt แล้ว)
+
+API ร้านค้าดู order ทั้งหมด http://localhost:5000/orders/pharmacy/1/orders
+API ร้านดู order แบบเจาะจงสถานะ http://localhost:5000/orders/pharmacy/1/orders?status=SHIPPING
+
+API ยกเลิก oreder http://localhost:5000/orders/3/cancel ( ปรับเป็น jwt แล้ว)
+API รานค้าดูรายละเอียด order http://localhost:5000/orders/pharmacy/orders/2
+
+คำสั่ง run train model 
+cd C:\Users\USER\Desktop\MedicalApp\backend
+.\.venv\Scripts\python.exe .\Ai\Prediction\training\train_model.py
+
+คำสั่ง run test model
+cd C:\Users\USER\Desktop\MedicalApp\backend
+.\.venv\Scripts\python.exe .\Ai\Prediction\training\test_model.py
+
+ิิออก .venv (deactivate)
+
+(run app emu)
+cd /d C:\Users\USER\Desktop\MedicalApp\mobile_app
+flutter create --platforms=web .
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:5000
+
+(run app chrome)
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:5000

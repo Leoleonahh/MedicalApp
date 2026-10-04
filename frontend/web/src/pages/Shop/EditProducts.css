@@ -1,0 +1,36 @@
+.edit-products-page{ min-height:100vh; display:flex; background:var(--bg); color:var(--text) }
+.left-accent{ width:88px; background:linear-gradient(180deg,#ffd0e2,#ffe1ec); min-height:100vh; flex-shrink:0 }
+.ep-container{ flex:1; padding:28px 32px }
+.ep-header{ max-width:1200px; margin:0 auto 16px; display:flex; align-items:center; justify-content:space-between }
+.ep-left{ display:flex; align-items:center; gap:12px }
+.manage-back{ width:46px; height:46px; display:inline-flex; align-items:center; justify-content:center; border-radius:14px; background:var(--surface); color:var(--text); border:1px solid var(--border); text-decoration:none }
+.ep-title{ font-family:Georgia, 'Times New Roman', serif; font-size:28px; margin:0 }
+.ep-actions{ display:flex; gap:12px; align-items:center }
+.pill{ padding:8px 14px; border-radius:12px; background:linear-gradient(135deg,#ffd2e6,#ffc0da); border:none; font-weight:700 }
+.pill.primary{ background:linear-gradient(135deg,#ffb6d1,#ff9fc4); color:#111 }
+.ep-card{ max-width:1200px; margin:0 auto; background:transparent }
+.ep-columns{ display:flex; gap:18px }
+.ep-column{ flex:1; background:#fff; border-radius:12px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,0.06); min-height:420px }
+.ep-column-title{ font-weight:700; margin-bottom:12px }
+.ep-item{ display:flex; align-items:center; justify-content:space-between; padding:12px; border-radius:10px; background:var(--surface-soft); margin-bottom:10px }
+.ep-item-left{ display:flex; flex-direction:column }
+.ep-name{ font-weight:700 }
+.ep-meta{ color:var(--muted); font-size:13px }
+.ep-item-right{ display:flex; align-items:center; gap:8px }
+.ep-price{ font-weight:700 }
+.icon-btn{ width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background:var(--surface); display:inline-flex; align-items:center; justify-content:center; cursor:pointer }
+.icon-btn.danger{ background:#ffeef2; border-color:rgba(255,90,120,0.14) }
+.ep-empty{ color:var(--muted); padding:12px; background:var(--surface-soft); border-radius:10px }
+.ep-error{ color:#d93025 }
+
+.ep-edit-form{ display:flex; flex-direction:column; gap:12px }
+.ep-field label{ display:block; color:var(--muted); font-weight:600; margin-bottom:6px }
+.ep-field input{ padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); }
+.ep-field select,
+.ep-field textarea{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font:inherit; box-sizing:border-box }
+.ep-field textarea{ min-height:80px; resize:vertical }
+.ep-field input[type="file"]{ width:100%; box-sizing:border-box }
+.ep-form-row{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px }
+.ep-actions-row{ display:flex; gap:10px; justify-content:flex-end }
+
+@media(max-width:900px){ .ep-columns{ flex-direction:column } .left-accent{ display:none } }

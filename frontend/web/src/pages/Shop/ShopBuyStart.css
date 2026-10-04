@@ -1,0 +1,405 @@
+
+/* =================================
+   Buy Start Page
+================================= */
+
+.buy-start-page {
+  min-height: 100vh;
+  width: 100%;
+
+  display: flex;
+
+  background: var(--bg);
+  color: var(--text);
+
+  box-sizing: border-box;
+}
+
+/* =================================
+   Left Accent
+================================= */
+
+.left-accent {
+  width: 88px;
+  min-height: 100vh;
+
+  flex-shrink: 0;
+
+  background: linear-gradient(
+    180deg,
+    #ffd0e2,
+    #ffe1ec
+  );
+
+  border-right: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+/* =================================
+   Main Container
+================================= */
+
+.buy-container {
+  flex: 1;
+
+  width: 100%;
+
+  padding: 32px 32px 50px;
+
+  box-sizing: border-box;
+}
+
+/* =================================
+   Header
+================================= */
+
+.shop-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  margin: 0 0 18px;
+  padding: 10px 16px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: #f7dfe8;
+  color: #222;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.shop-back-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.buy-header {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto 26px;
+}
+
+.buy-title {
+  margin: 0 0 8px;
+
+  font-family: Georgia, "Times New Roman", serif;
+
+  font-size: 26px;
+  font-weight: 700;
+
+  letter-spacing: -0.3px;
+}
+
+.buy-sub {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* =================================
+   Shop List
+================================= */
+
+.shop-list {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+/* =================================
+   Shop Card
+================================= */
+
+.shop-card {
+  width: 100%;
+  min-height: 78px;
+
+  padding: 17px 20px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 16px;
+
+  box-shadow: var(--shadow);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.shop-card:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(255, 159, 196, 0.35);
+
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.07);
+}
+
+/* =================================
+   Shop Information
+================================= */
+
+.shop-name {
+  margin-bottom: 4px;
+
+  font-size: 16px;
+  font-weight: 800;
+
+  line-height: 1.4;
+}
+
+.shop-meta {
+  color: var(--muted);
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+/* =================================
+   Actions
+================================= */
+
+.shop-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  flex-shrink: 0;
+}
+
+/* =================================
+   Select Button
+================================= */
+
+.btn-select {
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 12px;
+
+  background: linear-gradient(
+    135deg,
+    #22b879,
+    #18a26a
+  );
+
+  color: #fff;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 15px rgba(24, 162, 106, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-select:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 9px 20px rgba(24, 162, 106, 0.25);
+}
+
+.btn-select:active {
+  transform: translateY(0);
+}
+
+/* =================================
+   Profile Link
+================================= */
+
+.link-profile {
+  min-height: 42px;
+
+  padding: 0 14px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  color: var(--muted);
+
+  border: 1px solid var(--border);
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.link-profile:hover {
+  background: var(--surface-soft);
+
+  color: var(--text);
+
+  transform: translateY(-1px);
+}
+
+/* =================================
+   Tablet
+================================= */
+
+@media (max-width: 900px) {
+
+  .left-accent {
+    width: 56px;
+  }
+
+  .buy-container {
+    padding: 26px 20px 40px;
+  }
+
+  .buy-title {
+    font-size: 23px;
+  }
+
+  .shop-card {
+    padding: 16px 18px;
+  }
+}
+
+/* =================================
+   Mobile
+================================= */
+
+@media (max-width: 760px) {
+
+  .buy-start-page {
+    display: block;
+  }
+
+  .left-accent {
+    display: none;
+  }
+
+  .buy-container {
+    padding: 20px 14px 30px;
+  }
+
+  .buy-header {
+    margin-bottom: 20px;
+  }
+
+  .buy-title {
+    font-size: 21px;
+  }
+
+  .buy-sub {
+    font-size: 13px;
+  }
+
+  .shop-list {
+    gap: 12px;
+  }
+
+  .shop-card {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 15px;
+
+    padding: 17px;
+
+    border-radius: 15px;
+  }
+
+  .shop-name {
+    font-size: 15px;
+  }
+
+  .shop-actions {
+    width: 100%;
+
+    display: flex;
+
+    gap: 10px;
+  }
+
+  .btn-select {
+    flex: 1;
+  }
+
+  .link-profile {
+    flex: 1;
+  }
+}
+
+/* =================================
+   Small Mobile
+================================= */
+
+@media (max-width: 420px) {
+
+  .buy-container {
+    padding: 18px 12px 28px;
+  }
+
+  .buy-title {
+    font-size: 19px;
+  }
+
+  .shop-card {
+    padding: 15px;
+  }
+
+  .shop-actions {
+    flex-direction: column;
+  }
+
+  .btn-select,
+  .link-profile {
+    width: 100%;
+  }
+}
+

@@ -1,0 +1,478 @@
+
+/* =================================
+   Checkout Page
+================================= */
+
+.checkout-page {
+  min-height: 100vh;
+  width: 100%;
+
+  padding: 32px 24px 60px;
+
+  box-sizing: border-box;
+
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* =================================
+   Main Container
+================================= */
+
+.checkout-container {
+  width: 100%;
+  max-width: 900px;
+
+  margin: 0 auto;
+
+  padding: 36px;
+
+  box-sizing: border-box;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 20px;
+
+  box-shadow: var(--shadow);
+}
+
+/* =================================
+   Section
+================================= */
+
+.checkout-section {
+  margin-bottom: 28px;
+
+  padding-bottom: 24px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.checkout-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+
+  border-bottom: none;
+}
+
+/* =================================
+   Items
+================================= */
+
+.checkout-items {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+/* =================================
+   Checkout Item
+================================= */
+
+.checkout-item {
+  width: 100%;
+
+  min-height: 54px;
+
+  padding: 13px 16px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  background: var(--surface-soft);
+
+  border: 1px solid transparent;
+
+  border-radius: 13px;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.checkout-item:hover {
+  border-color: var(--border);
+}
+
+/* =================================
+   Item Name
+================================= */
+
+.ci-name {
+  flex: 1;
+
+  min-width: 0;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  line-height: 1.5;
+}
+
+/* =================================
+   Item Price
+================================= */
+
+.checkout-item > span:last-child {
+  flex-shrink: 0;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* =================================
+   Total
+================================= */
+
+.checkout-total {
+  margin-top: 14px;
+
+  text-align: right;
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.checkout-error {
+  margin: 0 0 12px;
+  color: #c0395a;
+}
+
+.checkout-success {
+  margin: 8px 0;
+  color: #16803c;
+}
+
+/* =================================
+   Form Field
+================================= */
+
+.field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+
+  margin-bottom: 16px;
+}
+
+.field:last-child {
+  margin-bottom: 0;
+}
+
+/* =================================
+   Field Label
+================================= */
+
+.field label {
+  color: var(--muted);
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* =================================
+   Input / Textarea / Select
+================================= */
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 13px 15px;
+
+  border-radius: 13px;
+
+  border: 1px solid var(--border);
+
+  background: var(--surface-soft);
+
+  color: var(--text);
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.field input,
+.field select {
+  height: 50px;
+}
+
+.field textarea {
+  min-height: 110px;
+
+  resize: vertical;
+
+  line-height: 1.6;
+}
+
+.field textarea.address-details {
+  min-height: 82px;
+}
+
+.checkout-location-error {
+  margin: 0;
+  color: #c0395a;
+  font-size: 13px;
+}
+
+/* =================================
+   Placeholder
+================================= */
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #999;
+}
+
+/* =================================
+   Focus
+================================= */
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: #ff9fc4;
+
+  background: var(--surface);
+
+  box-shadow:
+    0 0 0 4px rgba(255, 159, 196, 0.15);
+}
+
+/* =================================
+   Checkout Actions
+================================= */
+
+.checkout-actions {
+  display: flex;
+
+  justify-content: flex-end;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-top: 10px;
+}
+.btn-back {
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-back:hover {
+  box-shadow: var(--shadow);
+}
+.btn-use-location {
+  align-self: flex-start;
+  background: #ff9fc4;
+  color: white;
+  border: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-use-location:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Slip preview */
+.slip-preview { display:flex; flex-direction:column; gap:8px }
+.slip-preview img { display:block }
+
+
+/* =================================
+   Place Order Button
+================================= */
+
+.btn-place {
+  min-height: 48px;
+
+  padding: 0 26px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: linear-gradient(
+    135deg,
+    #22b879,
+    #18a26a
+  );
+
+  color: #fff;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 7px 18px rgba(24, 162, 106, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-place:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 24px rgba(24, 162, 106, 0.25);
+}
+
+.btn-place:active {
+  transform: translateY(0);
+}
+
+/* =================================
+   Tablet
+================================= */
+
+@media (max-width: 900px) {
+
+  .checkout-page {
+    padding: 24px 18px 40px;
+  }
+
+  .checkout-container {
+    padding: 30px 24px;
+
+    border-radius: 18px;
+  }
+}
+
+/* =================================
+   Mobile
+================================= */
+
+@media (max-width: 760px) {
+
+  .checkout-page {
+    padding: 18px 14px 30px;
+  }
+
+  .checkout-container {
+    padding: 24px 18px;
+
+    border-radius: 16px;
+  }
+
+  .checkout-section {
+    margin-bottom: 24px;
+
+    padding-bottom: 20px;
+  }
+
+  .checkout-item {
+    align-items: flex-start;
+
+    padding: 13px 14px;
+  }
+
+  .ci-name {
+    font-size: 14px;
+  }
+
+  .checkout-total {
+    font-size: 17px;
+  }
+
+  .field input,
+  .field select {
+    height: 48px;
+  }
+
+  .field textarea {
+    min-height: 100px;
+  }
+
+  .checkout-actions {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    margin-top: 8px;
+  }
+
+  .btn-place {
+    width: 100%;
+
+    min-height: 50px;
+  }
+}
+
+/* =================================
+   Small Mobile
+================================= */
+
+@media (max-width: 420px) {
+
+  .checkout-page {
+    padding: 16px 12px 28px;
+  }
+
+  .checkout-container {
+    padding: 20px 15px;
+  }
+
+  .checkout-item {
+    padding: 12px;
+  }
+
+  .ci-name {
+    font-size: 13px;
+  }
+
+  .checkout-item > span:last-child {
+    font-size: 13px;
+  }
+
+  .checkout-total {
+    font-size: 16px;
+  }
+
+  .field {
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .field label {
+    font-size: 13px;
+  }
+
+  .field input,
+  .field select {
+    font-size: 13px;
+  }
+
+  .btn-place {
+    font-size: 14px;
+  }
+}

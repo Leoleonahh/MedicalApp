@@ -1,0 +1,345 @@
+
+/* ================================
+   Create Shop Page
+================================ */
+
+.create-shop-page {
+  min-height: 100vh;
+  padding: 32px 24px 60px;
+  background: var(--bg);
+  color: var(--text);
+  box-sizing: border-box;
+}
+
+/* ================================
+   Header
+================================ */
+
+.cs-header {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cs-back {
+  width: 46px;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+
+  text-decoration: none;
+  border: 1px solid var(--border);
+
+  transition: all 0.2s ease;
+}
+
+.cs-back:hover {
+  transform: translateX(-3px);
+  box-shadow: var(--shadow);
+}
+
+.cs-title {
+  flex: 1;
+
+  margin: 0;
+  text-align: center;
+
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+/* ================================
+   Main Card
+================================ */
+
+.cs-card {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto;
+  padding: 40px;
+
+  box-sizing: border-box;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+
+  box-shadow: var(--shadow);
+}
+
+/* ================================
+   Form
+================================ */
+
+.cs-form {
+  width: 100%;
+  max-width: 720px;
+
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ================================
+   Input
+================================ */
+
+.cs-form input[type="text"],
+.cs-form input[type="email"],
+.cs-form input[type="tel"],
+.cs-form input[type="file"] {
+  width: 100%;
+  height: 52px;
+
+  box-sizing: border-box;
+
+  padding: 0 18px;
+
+  border-radius: 14px;
+  border: 1px solid var(--border);
+
+  background: var(--surface-soft);
+  color: var(--text);
+
+  font-size: 15px;
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+/* Ensure cs-input (shopname/phone/email) share the same color/background */
+.cs-form input.cs-input {
+  background: var(--surface-soft);
+  color: var(--text);
+}
+
+/* Placeholder */
+
+.cs-form input::placeholder {
+  color: #999;
+}
+
+/* Focus */
+
+.cs-form input[type="text"]:focus,
+.cs-form input[type="email"]:focus,
+.cs-form input[type="tel"]:focus,
+.cs-form input[type="file"]:focus {
+  border-color: #ff9fc4;
+  background: var(--surface);
+
+  box-shadow: 0 0 0 4px rgba(255, 159, 196, 0.15);
+}
+
+/* ================================
+   File Input
+================================ */
+
+.cs-form input[type="file"] {
+  padding: 13px 16px;
+  cursor: pointer;
+}
+
+/* ================================
+   Row
+================================ */
+
+.cs-row {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cs-coords input {
+  width: calc(50% - 8px);
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+
+/* ================================
+   Small Button
+================================ */
+
+.cs-btn.small {
+  min-height: 48px;
+
+  padding: 0 22px;
+
+  border-radius: 14px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.cs-btn.small:hover {
+  background: var(--surface-soft);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+/* ================================
+   Submit Button
+================================ */
+
+.cs-submit {
+  width: 100%;
+  min-height: 52px;
+
+  margin-top: 8px;
+  padding: 0 28px;
+
+  border: none;
+  border-radius: 16px;
+
+  background: linear-gradient(
+    135deg,
+    #ffb6d1,
+    #ff9fc4
+  );
+
+  color: #111;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 8px 20px rgba(255, 159, 196, 0.25);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.cs-submit:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 25px rgba(255, 159, 196, 0.35);
+}
+
+.cs-error {
+  margin: 0;
+  color: #d93025;
+  text-align: center;
+}
+
+.cs-submit:active {
+  transform: translateY(0);
+}
+
+/* ================================
+   Tablet
+================================ */
+
+@media (max-width: 900px) {
+
+  .create-shop-page {
+    padding: 24px 18px 40px;
+  }
+
+  .cs-card {
+    padding: 30px 24px;
+    border-radius: 18px;
+  }
+
+  .cs-form {
+    max-width: 100%;
+  }
+
+  .cs-title {
+    font-size: 21px;
+  }
+}
+
+/* ================================
+   Mobile
+================================ */
+
+@media (max-width: 600px) {
+
+  .create-shop-page {
+    padding: 18px 14px 30px;
+  }
+
+  .cs-header {
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .cs-back {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+  }
+
+  .cs-title {
+    font-size: 19px;
+  }
+
+  .cs-card {
+    padding: 24px 18px;
+    border-radius: 16px;
+  }
+
+  .cs-form {
+    gap: 16px;
+  }
+
+  .cs-form input[type="text"],
+  .cs-form input[type="email"],
+  .cs-form input[type="tel"],
+  .cs-form input[type="file"] {
+    height: 50px;
+    font-size: 14px;
+  }
+
+  .cs-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .cs-btn.small {
+    width: 100%;
+  }
+
+  .cs-submit {
+    min-height: 50px;
+    font-size: 15px;
+  }
+}
+

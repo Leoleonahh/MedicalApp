@@ -1,0 +1,377 @@
+
+/* =================================
+   Shop Profile Page
+================================= */
+
+.shop-profile-page {
+  min-height: 100vh;
+  padding: 32px 24px 60px;
+  box-sizing: border-box;
+
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* =================================
+   Header
+================================= */
+
+.shop-header {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.shop-back {
+  width: 46px;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+  text-decoration: none;
+
+  transition: all 0.2s ease;
+}
+
+.shop-back:hover {
+  transform: translateX(-3px);
+  box-shadow: var(--shadow);
+}
+
+.shop-title {
+  flex: 1;
+
+  margin: 0;
+
+  text-align: center;
+
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+/* =================================
+   Main Card
+================================= */
+
+.shop-card {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto;
+  padding: 36px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  gap: 32px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: 20px;
+
+  box-shadow: var(--shadow);
+}
+
+/* =================================
+   Left / Avatar
+================================= */
+
+.shop-left {
+  width: 180px;
+  min-width: 180px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-avatar {
+  width: 130px;
+  height: 130px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 22px;
+
+  background: linear-gradient(
+    135deg,
+    #f8e7f1,
+    #f2d7e8
+  );
+
+  color: #9b5ca1;
+
+  font-size: 46px;
+  font-weight: 700;
+
+  border: 1px solid rgba(155, 92, 161, 0.12);
+
+  box-shadow:
+    0 8px 25px rgba(155, 92, 161, 0.12);
+}
+
+/* =================================
+   Right Content
+================================= */
+
+.shop-right {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  min-width: 0;
+}
+
+/* =================================
+   Information Row
+================================= */
+
+.shop-row {
+  width: 100%;
+  min-height: 52px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  padding: 14px 18px;
+
+  background: var(--surface-soft);
+
+  border: 1px solid transparent;
+  border-radius: 14px;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.shop-row:hover {
+  border-color: var(--border);
+}
+
+/* =================================
+   Label
+================================= */
+
+.label {
+  min-width: 150px;
+
+  color: var(--muted);
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* =================================
+   Actions
+================================= */
+
+.shop-actions {
+  margin-top: 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shop-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 46px;
+
+  padding: 0 22px;
+
+  border-radius: 14px;
+
+  background: linear-gradient(
+    135deg,
+    #ffb6d1,
+    #ff9fc4
+  );
+
+  color: #111;
+
+  border: none;
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  box-shadow:
+    0 7px 18px rgba(255, 159, 196, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.shop-edit:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 24px rgba(255, 159, 196, 0.32);
+}
+
+.shop-edit:active {
+  transform: translateY(0);
+}
+
+/* =================================
+   Tablet
+================================= */
+
+@media (max-width: 900px) {
+
+  .shop-profile-page {
+    padding: 24px 18px 40px;
+  }
+
+  .shop-card {
+    padding: 30px 24px;
+    gap: 24px;
+    border-radius: 18px;
+  }
+
+  .shop-left {
+    width: 150px;
+    min-width: 150px;
+  }
+
+  .shop-avatar {
+    width: 115px;
+    height: 115px;
+    font-size: 40px;
+  }
+
+  .shop-title {
+    font-size: 21px;
+  }
+}
+
+/* =================================
+   Mobile
+================================= */
+
+@media (max-width: 760px) {
+
+  .shop-profile-page {
+    padding: 18px 14px 30px;
+  }
+
+  .shop-header {
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .shop-back {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+  }
+
+  .shop-title {
+    font-size: 19px;
+  }
+
+  .shop-card {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    padding: 24px 18px;
+
+    gap: 24px;
+
+    border-radius: 16px;
+  }
+
+  .shop-left {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .shop-avatar {
+    width: 110px;
+    height: 110px;
+
+    border-radius: 20px;
+
+    font-size: 40px;
+  }
+
+  .shop-right {
+    width: 100%;
+  }
+
+  .shop-row {
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 5px;
+
+    padding: 13px 15px;
+  }
+
+  .label {
+    min-width: 0;
+
+    font-size: 13px;
+  }
+
+  .shop-actions {
+    width: 100%;
+  }
+
+  .shop-edit {
+    width: 100%;
+  }
+}
+
+/* =================================
+   Small Mobile
+================================= */
+
+@media (max-width: 420px) {
+
+  .shop-card {
+    padding: 20px 15px;
+  }
+
+  .shop-avatar {
+    width: 100px;
+    height: 100px;
+
+    font-size: 36px;
+  }
+
+  .shop-row {
+    font-size: 14px;
+  }
+}
+
