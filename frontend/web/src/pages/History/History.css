@@ -39,7 +39,21 @@
   background: linear-gradient(180deg,#f8edf5 0%, #f2d9ea 100%);
 }
 
-.history-card p { margin:0; font-size:16px; font-weight:700; }
+.history-dates {
+  display: grid;
+  gap: 10px;
+}
+
+.history-dates p {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.history-dates span { color: var(--muted); }
+
+.history-dates strong { font-size: 15px; }
 
 .history-card small { color: var(--muted); }
 

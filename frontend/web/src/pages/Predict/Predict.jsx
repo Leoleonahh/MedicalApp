@@ -48,6 +48,12 @@ function Predict() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const submitInProgress = useRef(false);
+  const now = new Date();
+  const maxIncidentDate = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .slice(0, 10);
 
   useEffect(() => {
     if (!image) {
@@ -124,14 +130,6 @@ function Predict() {
 
     setImage(file);
     setError("");
-  };
-
-  const handleUseToday = () => {
-    const today = new Date();
-    const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 10);
-    setIncidentDate(localDate);
   };
 
   // ===============================
@@ -319,19 +317,12 @@ function Predict() {
                   วันที่เกิดบาดแผล
                 </span>
 
-                <button
-                  type="button"
-                  className="today-date-button"
-                  onClick={handleUseToday}
-                >
-                  {incidentDate
-                    ? new Date(`${incidentDate}T00:00:00`).toLocaleDateString("th-TH", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })
-                    : "กดเพื่อเลือกวันที่ปัจจุบัน"}
-                </button>
+                <input
+                  type="date"
+                  value={incidentDate}
+                  max={maxIncidentDate}
+                  onChange={(e) => setIncidentDate(e.target.value)}
+                />
 
               </label>
 

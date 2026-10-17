@@ -129,6 +129,40 @@
   gap: 14px;
 }
 
+.orders-sections {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  gap: 28px;
+}
+
+.order-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.order-section-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.order-section-header span,
+.order-section-empty {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.order-section-empty {
+  margin: 0;
+  padding: 12px 0;
+}
+
 /* =================================
    Order Card
 ================================= */

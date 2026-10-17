@@ -94,7 +94,13 @@ export async function predictWoundService(imageId: number) {
         };
       }
 
-      const severity = determineSeverity(woundType, woundSize, length, depth);
+      const severity = determineSeverity(
+        woundType,
+        woundSize,
+        length,
+        depth,
+        predictLabel
+      );
       const riskLevel = calculateRiskLevel(woundType, woundSize, length, depth);
       const recommendedMedicines = getRecommendedMedicines(woundType, severity);
 

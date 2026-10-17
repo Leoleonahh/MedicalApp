@@ -46,7 +46,7 @@ export const listProductTypes = async (_req: Request, res: Response) => {
 };
 
 export const updateProduct = async (
-  req: Request,
+  req: Request & { user?: any },
   res: Response
 ) => {
 
@@ -56,14 +56,21 @@ export const updateProduct = async (
 
     const pharmacyProductId = Number(req.params.pharmacyProductId);
 
-    const { price, stock } = req.body;
+    const userId = req.user?.user_id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const { price, stock, description } = req.body;
 
     const result = await updatePharmacyProduct(
       pharmacyId,
+      Number(userId),
       pharmacyProductId,
       {
         price,
         stock,
+        description,
       }
     );
 
@@ -112,6 +119,8 @@ export const getProducts = async (
         pharmacy_product_id: item.pharmacy_product_id,
         product_id: item.product.product_id,
         product_name: item.product.product_name,
+        description: item.product.description,
+        created_by_pharmacy_id: item.product.created_by_pharmacy_id,
         type: item.product.typepro?.type_name,
         image: item.product.image,
         price: item.price,

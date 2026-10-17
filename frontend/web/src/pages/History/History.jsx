@@ -33,12 +33,21 @@ function History() {
     loadHistory();
   }, []);
 
-  const formatDate = (date) =>
-    new Date(date).toLocaleDateString("th-TH", {
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    const [year, month, day] = String(date)
+      .split("T")[0]
+      .split("-")
+      .map(Number);
+    const localDate = new Date(year, month - 1, day);
+
+    return localDate.toLocaleDateString("th-TH", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
+  };
 
   return (
     <div className="page">
@@ -71,7 +80,16 @@ function History() {
               />
             </div>
 
-            <p>{formatDate(item.upload_date)}</p>
+            <div className="history-dates">
+              <p>
+                <span>วันที่อัปโหลด</span>
+                <strong>{formatDate(item.upload_date)}</strong>
+              </p>
+              <p>
+                <span>วันที่เกิดบาดแผล</span>
+                <strong>{item.incident_date ? formatDate(item.incident_date) : "ไม่ได้ระบุ"}</strong>
+              </p>
+            </div>
             {item.wound_site && <small>{item.wound_site}</small>}
             {item.latest_prediction?.predict_label && (
               <small>{item.latest_prediction.predict_label}</small>

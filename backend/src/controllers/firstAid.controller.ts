@@ -44,7 +44,8 @@ export const recommendFirstAid = async (req: Request, res: Response) => {
       woundType,
       prediction.wound_size,
       prediction.length,
-      prediction.depth
+      prediction.depth,
+      prediction.predict_label
     );
 
     // ✅ คำนวณระดับความเสี่ยง [ต่ำ, กลาง, สูง]

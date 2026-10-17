@@ -194,6 +194,46 @@
   word-break: break-word;
 }
 
+.delivery-proof-upload {
+  display: grid;
+  gap: 6px;
+}
+
+.delivery-proof-upload input {
+  max-width: 100%;
+}
+
+.delivery-proof-upload span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.delivery-proof-image {
+  display: block;
+  width: min(100%, 420px);
+  max-height: 360px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.delivery-proof-preview {
+  display: block;
+  width: min(100%, 420px);
+  max-height: 360px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  object-fit: contain;
+  background: var(--surface-soft);
+}
+
+.status-error {
+  margin: 14px 0 0;
+  color: #b42318;
+  text-align: right;
+  font-size: 14px;
+}
+
 /* =================================
    Status Select
 ================================= */

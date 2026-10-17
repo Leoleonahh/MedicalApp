@@ -148,6 +148,9 @@ function ManageShop() {
                 <div className="product-item-info">
                   <strong>{product.product_name || "-"}</strong>
                   <span>{product.type || "-"}</span>
+                  <span className="product-description">
+                    {product.description || "ไม่มีรายละเอียดสินค้า"}
+                  </span>
                 </div>
                 <div className="product-item-meta">
                   <span>ราคา {product.price ?? "-"}</span>

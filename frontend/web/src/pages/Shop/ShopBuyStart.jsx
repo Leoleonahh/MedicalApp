@@ -9,8 +9,11 @@ function ShopBuyStart() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const showDistances = searchParams.get("source") === "result";
 
   const distanceInKilometers = (latitude, longitude) => {
+    if (!showDistances) return null;
+
     const woundLatitude = Number(searchParams.get("latitude"));
     const woundLongitude = Number(searchParams.get("longitude"));
     const shopLatitude = Number(latitude);
@@ -43,19 +46,20 @@ function ShopBuyStart() {
       try {
         const result = await getAllVerifiedPharmacies();
         const verifiedShops = result.data || [];
-        setShops(
-          verifiedShops
-            .map((shop) => ({
-              ...shop,
-              distance: distanceInKilometers(shop.latitude, shop.longitude),
-            }))
-            .sort((firstShop, secondShop) => {
-              if (firstShop.distance == null) return 1;
-              if (secondShop.distance == null) return -1;
-              return firstShop.distance - secondShop.distance;
-            })
-            .slice(0, 3)
-        );
+        const sortedShops = verifiedShops
+          .map((shop) => ({
+            ...shop,
+            distance: distanceInKilometers(shop.latitude, shop.longitude),
+          }))
+          .sort((firstShop, secondShop) => {
+            if (!showDistances) return 0;
+            if (firstShop.distance == null && secondShop.distance == null) return 0;
+            if (firstShop.distance == null) return 1;
+            if (secondShop.distance == null) return -1;
+            return firstShop.distance - secondShop.distance;
+          });
+
+        setShops(showDistances ? sortedShops.slice(0, 3) : sortedShops);
       } catch (err) {
         console.error("Load verified shops error:", err);
         setError(err.response?.data?.message || "ไม่สามารถโหลดร้านค้าได้");
@@ -67,8 +71,8 @@ function ShopBuyStart() {
 
   function selectShop(s) {
     localStorage.setItem("selected_shop", JSON.stringify(s));
-
-    navigate(`/shop`);
+    const query = searchParams.toString();
+    navigate(query ? `/shop?${query}` : "/shop");
   }
 
   return (
@@ -101,7 +105,7 @@ function ShopBuyStart() {
               <div className="shop-info">
                 <div className="shop-name">{s.pharmacy_name}</div>
                 <div className="shop-meta">{s.phone} · {s.email}</div>
-                {s.distance != null && (
+                {showDistances && s.distance != null && (
                   <div className="shop-meta">
                     ห่างจากตำแหน่งที่คุณอยู่ {s.distance.toFixed(2)} กม.
                   </div>

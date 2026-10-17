@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import AdminAuthBridge from "../admin/AdminAuthBridge";
 import LoginAdmin from "../admin/LoginAdmin/LoginAdmin";
 import Dashboard from "../admin/Dashboard/Dashboard";
 import SystemStats from "../admin/SystemStats/SystemStats";
@@ -9,16 +10,19 @@ import PharmacyDetail from "../admin/PharmacyDetail/PharmacyDetail";
 
 function AdminRoutes() {
   return (
-    <Routes>
-      <Route path="/" element={<LoginAdmin />} />
-      <Route path="/admin" element={<LoginAdmin />} />
-      <Route path="/admin/dashboard" element={<Dashboard />} />
-      <Route path="/admin/statistics" element={<SystemStats />} />
-      <Route path="/admin/model-edit" element={<ModelEdit />} />
-      <Route path="/admin/pharmacies" element={<RegisteredPharmacies />} />
-      <Route path="/admin/pharmacies/:id" element={<PharmacyDetail />} />
-      <Route path="/admin/pharmacy-approvals" element={<PharmacyApprovals />} />
-    </Routes>
+    <>
+      <AdminAuthBridge />
+      <Routes>
+        <Route path="/" element={<LoginAdmin />} />
+        <Route path="/admin" element={<LoginAdmin />} />
+        <Route path="/admin/dashboard" element={<Dashboard />} />
+        <Route path="/admin/statistics" element={<SystemStats />} />
+        <Route path="/admin/model-edit" element={<ModelEdit />} />
+        <Route path="/admin/pharmacies" element={<RegisteredPharmacies />} />
+        <Route path="/admin/pharmacies/:id" element={<PharmacyDetail />} />
+        <Route path="/admin/pharmacy-approvals" element={<PharmacyApprovals />} />
+      </Routes>
+    </>
   );
 }
 

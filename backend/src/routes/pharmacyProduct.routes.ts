@@ -37,6 +37,7 @@ router.post(
 
 router.put(
   "/:pharmacyId/products/:pharmacyProductId",
+  authMiddleware,
   updateProduct
 );
 

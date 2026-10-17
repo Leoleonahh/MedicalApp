@@ -54,7 +54,8 @@ export async function getRecommendationByPredictionId(predictionId: number) {
         woundType,
         prediction.wound_size,
         prediction.length,
-        prediction.depth
+        prediction.depth,
+        prediction.predict_label
       );
 
       const ruleKey = woundType === 'cut'

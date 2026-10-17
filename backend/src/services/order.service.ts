@@ -25,11 +25,31 @@ const restoreOrderStock = async (manager: EntityManager, orderId: number) => {
     }
 };
 
+const calculateDistanceKilometers = (
+        firstLatitude: number,
+        firstLongitude: number,
+        secondLatitude: number,
+        secondLongitude: number
+) => {
+        const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+        const latitudeDifference = toRadians(secondLatitude - firstLatitude);
+        const longitudeDifference = toRadians(secondLongitude - firstLongitude);
+        const haversine =
+                Math.sin(latitudeDifference / 2) ** 2 +
+                Math.cos(toRadians(firstLatitude)) *
+                Math.cos(toRadians(secondLatitude)) *
+                Math.sin(longitudeDifference / 2) ** 2;
+
+        return 6371 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+};
+
 export const checkoutOrder = async (data: {
   user_id: number;
   receiver_name: string;
   receiver_phone: string;
   delivery_address: string;
+    delivery_latitude: number;
+    delivery_longitude: number;
   payment_method: "COD" | "PROMPTPAY";
   note?: string;
 }) => {
@@ -58,6 +78,35 @@ export const checkoutOrder = async (data: {
     if (!cart) {
       throw new Error("Cart not found");
     }
+
+        const rawStoreLatitude = cart.pharmacy.latitude;
+        const rawStoreLongitude = cart.pharmacy.longitude;
+        if (rawStoreLatitude == null || rawStoreLongitude == null) {
+            throw new Error("ร้านค้าไม่มีพิกัดที่อยู่ จึงไม่สามารถตรวจสอบระยะจัดส่งได้");
+        }
+
+        const storeLatitude = Number(rawStoreLatitude);
+        const storeLongitude = Number(rawStoreLongitude);
+        if (
+            !Number.isFinite(storeLatitude) ||
+            !Number.isFinite(storeLongitude) ||
+            !Number.isFinite(data.delivery_latitude) ||
+            !Number.isFinite(data.delivery_longitude)
+        ) {
+            throw new Error("ไม่สามารถตรวจสอบพิกัดร้านหรือที่อยู่จัดส่งได้");
+        }
+
+        const deliveryDistance = calculateDistanceKilometers(
+            storeLatitude,
+            storeLongitude,
+            data.delivery_latitude,
+            data.delivery_longitude
+        );
+        if (deliveryDistance > 5) {
+            throw new Error(
+                `ที่อยู่จัดส่งอยู่ห่างจากร้าน ${deliveryDistance.toFixed(2)} กม. ร้านจัดส่งได้ไม่เกิน 5 กม.`
+            );
+        }
 
     // ============================
     // ดึงสินค้าทั้งหมดใน Cart
@@ -223,7 +272,8 @@ export const checkoutOrder = async (data: {
 export const updateOrderStatus = async (
     orderId: number,
     userId: number,
-    orderStatus: string
+    orderStatus: string,
+    deliveryProof?: string
 ) => {
 
     return await AppDataSource.transaction((manager) =>
@@ -231,7 +281,8 @@ export const updateOrderStatus = async (
             manager,
             orderId,
             userId,
-            orderStatus
+            orderStatus,
+            deliveryProof
         )
     );
 };
@@ -240,7 +291,8 @@ const updateOrderStatusInTransaction = async (
     manager: EntityManager,
     orderId: number,
     userId: number,
-    orderStatus: string
+    orderStatus: string,
+    deliveryProof?: string
 ) => {
     const orderRepository = manager.getRepository(Order);
 
@@ -360,12 +412,24 @@ const updateOrderStatusInTransaction = async (
 
     }
 
+    if (orderStatus === "DELIVERED" && !deliveryProof) {
+        throw new Error("กรุณาแนบรูปหลักฐานการจัดส่งก่อนยืนยันจัดส่งเรียบร้อย");
+    }
+
     // ==========================================
     // อัปเดตสถานะ
     // ==========================================
 
     if (orderStatus === "CANCELLED") {
         await restoreOrderStock(manager, orderId);
+    }
+
+    if (deliveryProof) {
+        order.delivery_proof = deliveryProof;
+    }
+
+    if (orderStatus === "DELIVERED" && order.payment_method === "COD") {
+        order.payment_status = "PAID";
     }
 
     order.order_status = orderStatus;

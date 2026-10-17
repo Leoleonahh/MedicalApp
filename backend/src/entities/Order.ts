@@ -91,6 +91,13 @@ export class Order {
   order_status: string;
 
   @Column({
+    type: "varchar",
+    length: 255,
+    nullable: true,
+  })
+  delivery_proof: string | null;
+
+  @Column({
     type: "text",
     nullable: true,
   })

@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { getPharmacyDetail } from "../../api/pharmacy.api";
+import AdminProfileLink from "../AdminProfileLink";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -38,6 +39,7 @@ function PharmacyDetail() {
           <Link to="/admin/model-edit" className="nav-item">ข้อมูลโมเดล</Link>
           <Link to="/admin/pharmacies" className="nav-item active">ร้านขายยาที่ลงทะเบียน</Link>
           <Link to="/admin/pharmacy-approvals" className="nav-item">อนุมัติร้านยา</Link>
+          <AdminProfileLink />
         </nav>
       </aside>
       <main className="pharmacy-detail-main">

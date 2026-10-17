@@ -256,6 +256,11 @@
   font-size: 13px;
 }
 
+.product-item-info .product-description {
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .product-item-meta {
   text-align: right;
   flex-shrink: 0;

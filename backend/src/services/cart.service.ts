@@ -204,7 +204,13 @@ export const getCart = async (userId: number) => {
         cart.pharmacy.pharmacy_id,
 
       pharmacy_name:
-        cart.pharmacy.pharmacy_name
+        cart.pharmacy.pharmacy_name,
+
+      latitude:
+        cart.pharmacy.latitude,
+
+      longitude:
+        cart.pharmacy.longitude
 
     },
 

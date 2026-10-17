@@ -13,9 +13,48 @@ function getSavedProfile() {
   }
 }
 
+async function geocodeDeliveryAddress(deliveryAddress) {
+  const query = new URLSearchParams({
+    countrycodes: "th",
+    format: "jsonv2",
+    limit: "1",
+    q: deliveryAddress,
+  });
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/search?${query.toString()}`
+  );
+
+  if (!response.ok) {
+    throw new Error("ไม่สามารถค้นหาพิกัดที่อยู่จัดส่งได้ กรุณาลองอีกครั้ง");
+  }
+
+  const results = await response.json();
+  const latitude = Number(results[0]?.lat);
+  const longitude = Number(results[0]?.lon);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    throw new Error("ไม่พบพิกัดที่อยู่จัดส่ง กรุณาระบุที่อยู่ให้ชัดเจน");
+  }
+
+  return { latitude, longitude };
+}
+
+function distanceInKilometers(firstLatitude, firstLongitude, secondLatitude, secondLongitude) {
+  const toRadians = (degrees) => (degrees * Math.PI) / 180;
+  const latitudeDifference = toRadians(secondLatitude - firstLatitude);
+  const longitudeDifference = toRadians(secondLongitude - firstLongitude);
+  const haversine =
+    Math.sin(latitudeDifference / 2) ** 2 +
+    Math.cos(toRadians(firstLatitude)) *
+      Math.cos(toRadians(secondLatitude)) *
+      Math.sin(longitudeDifference / 2) ** 2;
+
+  return 6371 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+}
+
 function Checkout() {
   const navigate = useNavigate();
   const [cart, setCart] = useState([]);
+  const [shopLocation, setShopLocation] = useState(null);
   const [name, setName] = useState(() => {
     const profile = getSavedProfile();
     return profile?.username || profile?.name || "";
@@ -25,6 +64,7 @@ function Checkout() {
   const [addressDetails, setAddressDetails] = useState("");
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState("");
+  const [deliveryCoordinates, setDeliveryCoordinates] = useState(null);
   const [payment, setPayment] = useState("promptpay");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -35,6 +75,7 @@ function Checkout() {
       try {
         const result = await getCart();
         const items = result.data?.items || [];
+        setShopLocation(result.data?.pharmacy || null);
         setCart(items.map((item) => ({
           ...item,
           name: item.product_name || item.name || "ไม่ระบุชื่อสินค้า",
@@ -71,11 +112,38 @@ function Checkout() {
     }
 
     try {
+      setError("");
       setSubmitting(true);
+      if (shopLocation?.latitude == null || shopLocation?.longitude == null) {
+        throw new Error("ร้านค้าไม่มีพิกัดที่อยู่ จึงไม่สามารถตรวจสอบระยะจัดส่งได้");
+      }
+
+      const storeLatitude = Number(shopLocation?.latitude);
+      const storeLongitude = Number(shopLocation?.longitude);
+      if (!Number.isFinite(storeLatitude) || !Number.isFinite(storeLongitude)) {
+        throw new Error("ร้านค้าไม่มีพิกัดที่อยู่ จึงไม่สามารถตรวจสอบระยะจัดส่งได้");
+      }
+
+      const destination = deliveryCoordinates ||
+        await geocodeDeliveryAddress(address.trim());
+      const deliveryDistance = distanceInKilometers(
+        storeLatitude,
+        storeLongitude,
+        destination.latitude,
+        destination.longitude
+      );
+      if (deliveryDistance > 5) {
+        throw new Error(
+          `ที่อยู่จัดส่งอยู่ห่างจากร้าน ${deliveryDistance.toFixed(2)} กม. ร้านจัดส่งได้ไม่เกิน 5 กม.`
+        );
+      }
+
       const result = await checkoutOrder({
         receiver_name: name,
         receiver_phone: phone,
         delivery_address: deliveryAddress,
+        delivery_latitude: destination.latitude,
+        delivery_longitude: destination.longitude,
         payment_method: payment === "promptpay" ? "PROMPTPAY" : "COD",
       });
 
@@ -97,7 +165,7 @@ function Checkout() {
       }
     } catch (requestError) {
       console.error("Checkout error:", requestError);
-      setError(requestError.response?.data?.message || "ไม่สามารถสั่งซื้อได้");
+      setError(requestError.response?.data?.message || "ไม่สามารถสั่งซื้อได้เนื่องจากตำแหน่งของคุณอยู่ห่างจากร้านเกิน 5 กม. หรือที่อยู่ไม่ถูกต้อง");
     } finally {
       setSubmitting(false);
     }
@@ -115,9 +183,11 @@ function Checkout() {
 
     setLocationLoading(true);
     setLocationError("");
+    setDeliveryCoordinates(null);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
+        setDeliveryCoordinates({ latitude, longitude });
         const coordinateAddress = `ตำแหน่งปัจจุบัน: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
 
         try {
@@ -191,7 +261,10 @@ function Checkout() {
             <textarea
               id="delivery-address"
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              onChange={(e) => {
+                setAddress(e.target.value);
+                setDeliveryCoordinates(null);
+              }}
               placeholder="ที่อยู่หลัก เช่น บ้านเลขที่ ถนน แขวง/ตำบล เขต/อำเภอ จังหวัด"
               required
             />

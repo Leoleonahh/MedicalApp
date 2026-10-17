@@ -15,6 +15,7 @@
 .ep-item{ display:flex; align-items:center; justify-content:space-between; padding:12px; border-radius:10px; background:var(--surface-soft); margin-bottom:10px }
 .ep-item-left{ display:flex; flex-direction:column }
 .ep-name{ font-weight:700 }
+.ep-description{ color:var(--muted); font-size:13px; line-height:1.45; overflow-wrap:anywhere }
 .ep-meta{ color:var(--muted); font-size:13px }
 .ep-item-right{ display:flex; align-items:center; gap:8px }
 .ep-price{ font-weight:700 }
@@ -29,6 +30,8 @@
 .ep-field select,
 .ep-field textarea{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font:inherit; box-sizing:border-box }
 .ep-field textarea{ min-height:80px; resize:vertical }
+.ep-field textarea[readonly]{ background:var(--surface-soft); color:var(--muted) }
+.ep-readonly-note{ display:block; margin-top:6px; color:var(--muted); font-size:12px }
 .ep-field input[type="file"]{ width:100%; box-sizing:border-box }
 .ep-form-row{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px }
 .ep-actions-row{ display:flex; gap:10px; justify-content:flex-end }

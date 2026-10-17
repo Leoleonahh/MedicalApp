@@ -19,8 +19,22 @@ function OrderDetail() {
       ? slipFilename
       : `${API_URL}/uploads/slips/${encodeURIComponent(slipFilename)}`
     : "";
-  const paymentStatus = String(order?.payment_status || "").toUpperCase();
+  const deliveryProofUrl = order?.delivery_proof
+    ? `${API_URL}/uploads/delivery-proofs/${encodeURIComponent(order.delivery_proof)}`
+    : "";
   const paymentMethod = String(order?.payment_method || "").toUpperCase();
+  const orderStatus = String(order?.order_status || "").toUpperCase();
+  const paymentStatus =
+    paymentMethod === "COD" && orderStatus === "DELIVERED"
+      ? "PAID"
+      : String(order?.payment_status || "").toUpperCase();
+  const orderStatusLabels = {
+    PENDING: "รอจัดส่ง",
+    PREPARING: "กำลังเตรียมสินค้า",
+    SHIPPING: "กำลังจัดส่ง",
+    DELIVERED: "จัดส่งเรียบร้อย",
+    CANCELLED: "ยกเลิกแล้ว",
+  };
   const canPay =
     paymentMethod === "PROMPTPAY" &&
     !slipFilename &&
@@ -127,50 +141,122 @@ function OrderDetail() {
       </div>
 
       <div className="order-detail-container">
-        <div className="order-detail-card">
-          <p><strong>ร้านค้า:</strong> {order.pharmacy?.pharmacy_name || "-"}</p>
-          <p><strong>สถานะ:</strong> <span style={{color: order.order_status === 'CANCELLED' ? '#d00' : 'inherit'}}>{order.order_status}</span></p>
-          <p><strong>วันที่:</strong> {order.created_at ? new Date(order.created_at).toLocaleString("th-TH", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "-"}</p>
-          <p><strong>ผู้รับ:</strong> {order.receiver_name}</p>
-          <p><strong>เบอร์:</strong> {order.receiver_phone}</p>
-          <p><strong>ที่อยู่:</strong> {order.delivery_address}</p>
-          <p><strong>วิธีชำระเงิน:</strong> {order.payment_method}</p>
-          <p>
-            <strong>สถานะการชำระเงิน:</strong>{" "}
-            <span style={{color: order.payment_status === "PAID" ? "#16803c" : "#c0395a"}}>
-              {order.payment_status}
-            </span>
-          </p>
-          {canPay && (
-            <button className="btn-place" onClick={handlePayment}>
-              ไปชำระเงิน
-            </button>
-          )}
-          {slipUrl && (
-            <div style={{marginTop:12}}>
-              <p><strong>สลิปที่แนบ:</strong></p>
-              <img src={slipUrl} alt="slip" style={{maxWidth:320,borderRadius:8,border:'1px solid var(--border)'}} />
+        <article className="order-detail-card">
+          <header className="order-detail-heading">
+            <div>
+              <span className="order-detail-eyebrow">ORDER SUMMARY</span>
+              <h2>คำสั่งซื้อ #{order.order_id}</h2>
+              <p>
+                {order.created_at
+                  ? new Date(order.created_at).toLocaleString("th-TH", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "ไม่ระบุวันที่"}
+              </p>
             </div>
+            <span className={`order-detail-status status-${String(order.order_status || "").toLowerCase()}`}>
+              {orderStatusLabels[order.order_status] || order.order_status}
+            </span>
+          </header>
+
+          <section className="order-detail-section">
+            <h3>ข้อมูลจัดส่ง</h3>
+            <div className="order-detail-info-grid">
+              <div className="order-detail-info">
+                <span>ร้านค้า</span>
+                <strong>{order.pharmacy?.pharmacy_name || "-"}</strong>
+              </div>
+              <div className="order-detail-info">
+                <span>ผู้รับ</span>
+                <strong>{order.receiver_name || "-"}</strong>
+              </div>
+              <div className="order-detail-info">
+                <span>เบอร์โทรศัพท์</span>
+                <strong>{order.receiver_phone || "-"}</strong>
+              </div>
+              <div className="order-detail-info address-info">
+                <span>ที่อยู่จัดส่ง</span>
+                <strong>{order.delivery_address || "-"}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="order-detail-section">
+            <div className="order-detail-section-title">
+              <h3>รายการสินค้า</h3>
+              <span>{(order.items || []).length} รายการ</span>
+            </div>
+            <div className="customer-order-items">
+              {(order.items || []).map((item, index) => (
+                <div className="customer-order-item" key={item.order_item_id || index}>
+                  <div>
+                    <strong>{item.product_name}</strong>
+                    <span>จำนวน {item.quantity} ชิ้น · ฿{item.unit_price} / ชิ้น</span>
+                  </div>
+                  <strong>฿{item.subtotal}</strong>
+                </div>
+              ))}
+            </div>
+            <div className="order-detail-total">
+              <span>ยอดรวมทั้งหมด</span>
+              <strong>฿{order.grand_total}</strong>
+            </div>
+          </section>
+
+          <section className="order-detail-section payment-section">
+            <h3>การชำระเงิน</h3>
+            <div className="order-detail-info-grid">
+              <div className="order-detail-info">
+                <span>วิธีชำระเงิน</span>
+                <strong>{paymentMethod === "PROMPTPAY" ? "PromptPay" : "เก็บเงินปลายทาง"}</strong>
+              </div>
+              <div className="order-detail-info">
+                <span>สถานะการชำระเงิน</span>
+                <strong className={paymentStatus === "PAID" ? "payment-paid" : "payment-unpaid"}>
+                  {paymentStatus === "PAID" ? "สำเร็จ" : "ยังไม่ชำระ"}
+                </strong>
+              </div>
+            </div>
+            {canPay && (
+              <button className="btn-place" onClick={handlePayment}>
+                ไปชำระเงิน
+              </button>
+            )}
+            {slipUrl && (
+              <div className="order-proof-block">
+                <span>สลิปการชำระเงิน</span>
+                <a href={slipUrl} target="_blank" rel="noreferrer">
+                  <img src={slipUrl} alt="สลิปการชำระเงิน" />
+                </a>
+              </div>
+            )}
+          </section>
+
+          {deliveryProofUrl && (
+            <section className="order-detail-section">
+              <h3>หลักฐานการจัดส่งจากร้านค้า</h3>
+              <div className="order-proof-block">
+                <a href={deliveryProofUrl} target="_blank" rel="noreferrer">
+                  <img src={deliveryProofUrl} alt="หลักฐานการจัดส่งจากร้านค้า" />
+                </a>
+                <span>กดที่รูปเพื่อดูภาพขนาดเต็ม</span>
+              </div>
+            </section>
           )}
 
-          <div style={{marginTop:12}}>
-            <h3>รายการสินค้า</h3>
-            {(order.items || []).map((it, i) => (
-              <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'6px 0'}}>
-                <div>{it.product_name} x {it.quantity}</div>
-                <div>{it.subtotal} บาท</div>
-              </div>
-            ))}
-            <div style={{textAlign:'right',marginTop:8,fontWeight:700}}>รวม: {order.grand_total} บาท</div>
-          </div>
-
-          <div style={{marginTop:16,display:'flex',gap:8}}>
+          <footer className="order-detail-actions">
             {order.order_status === "PENDING" && !slipFilename && (
               <button className="btn-back" onClick={cancelOrder}>ยกเลิกคำสั่งซื้อ</button>
             )}
-            <button className="btn-place" onClick={() => navigate('/order-history')}>กลับ</button>
-          </div>
-        </div>
+            <button className="btn-place" onClick={() => navigate("/order-history")}>
+              กลับไปประวัติคำสั่งซื้อ
+            </button>
+          </footer>
+        </article>
       </div>
     </div>
   );

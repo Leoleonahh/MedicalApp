@@ -88,6 +88,28 @@
   color: var(--text);
 }
 
+.medicine-list {
+  display: grid;
+  gap: 12px;
+}
+
+.medicine-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--text);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.medicine-option input {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--primary);
+  flex: 0 0 18px;
+}
+
 .result-name-card {
   padding: 28px;
   position: relative;

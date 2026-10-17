@@ -46,9 +46,13 @@ export function determineSeverity(
   woundType: string,
   woundSize: string | null,
   length: string | null,
-  depth: string | null
+  depth: string | null,
+  predictLabel?: string | null
 ): string {
   if (woundType === 'cut') {
+    if (predictLabel?.includes('ขนาดใหญ่')) return 'large';
+    if (predictLabel?.includes('ขนาดเล็ก')) return 'small';
+
     // สำหรับแผลฉีกขาด ดูจาก length และ depth
     if (length === 'ยาว' && depth === 'ลึก') {
       return 'large';

@@ -10,6 +10,21 @@ const userRepository = AppDataSource.getRepository(User);
 const predictionRepository = AppDataSource.getRepository(Prediction);
 const recommendationRepository = AppDataSource.getRepository(Recommendation);
 
+const parseDateOnly = (date: string) => {
+  const [year, month, day] = date.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
+
+const formatDateOnly = (date: Date | string | null | undefined) => {
+  if (!date) return null;
+  if (typeof date === "string") return date.split("T")[0];
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 interface UploadWoundInput {
   user_id: number;
   image_path: string;
@@ -33,7 +48,7 @@ export async function uploadWoundService(data: UploadWoundInput) {
       user_id: data.user_id,
       image_path: data.image_path,
       associated_symptom: data.associated_symptom || null,
-      incident_date: data.incident_date ? new Date(data.incident_date) : null,
+      incident_date: data.incident_date ? parseDateOnly(data.incident_date) : null,
       wound_site: data.wound_site || null,
       latitude: data.latitude ? parseFloat(data.latitude.toString()) : null,
       longitude: data.longitude ? parseFloat(data.longitude.toString()) : null,
@@ -55,11 +70,7 @@ export async function uploadWoundService(data: UploadWoundInput) {
       image_path: woundImage.image_path,
       upload_date: woundImage.upload_date.toISOString(),
       associated_symptom: woundImage.associated_symptom,
-      incident_date: woundImage.incident_date
-        ? (woundImage.incident_date instanceof Date
-          ? woundImage.incident_date.toISOString().split('T')[0]
-          : String(woundImage.incident_date).split('T')[0])
-        : null,
+      incident_date: formatDateOnly(woundImage.incident_date),
       wound_site: woundImage.wound_site,
       latitude: woundImage.latitude,
       longitude: woundImage.longitude,
@@ -86,11 +97,7 @@ export async function getWoundImages(userId: number, limit: number = 50) {
       image_path: img.image_path,
       upload_date: img.upload_date.toISOString(),
       associated_symptom: img.associated_symptom,
-      incident_date: img.incident_date 
-        ? (img.incident_date instanceof Date 
-          ? img.incident_date.toISOString().split('T')[0]
-          : String(img.incident_date).split('T')[0])
-        : null,
+      incident_date: formatDateOnly(img.incident_date),
       wound_site: img.wound_site,
       latitude: img.latitude,
       longitude: img.longitude,
@@ -132,13 +139,7 @@ export async function getWoundImageDetail(
       image_path: image.image_path,
       upload_date: image.upload_date.toISOString(),
       associated_symptom: image.associated_symptom,
-      incident_date: image.incident_date
-        ? (
-            image.incident_date instanceof Date
-              ? image.incident_date.toISOString().split("T")[0]
-              : String(image.incident_date).split("T")[0]
-          )
-        : null,
+      incident_date: formatDateOnly(image.incident_date),
       wound_site: image.wound_site,
       latitude: image.latitude,
       longitude: image.longitude,
@@ -211,17 +212,7 @@ export async function getWoundDetailWithAnalysis(
       associated_symptom:
         image.associated_symptom,
 
-      incident_date:
-        image.incident_date
-          ? (
-              image.incident_date instanceof Date
-                ? image.incident_date
-                    .toISOString()
-                    .split("T")[0]
-                : String(image.incident_date)
-                    .split("T")[0]
-            )
-          : null,
+      incident_date: formatDateOnly(image.incident_date),
 
       wound_site:
         image.wound_site,
@@ -388,6 +379,7 @@ export async function getWoundHistoryWithStatus(userId: number, limit: number = 
           image_id: img.image_id,
           image_path: img.image_path,
           upload_date: img.upload_date.toISOString(),
+          incident_date: formatDateOnly(img.incident_date),
           wound_site: img.wound_site,
           has_prediction: !!latestPrediction,
           latest_prediction: latestPrediction ? {

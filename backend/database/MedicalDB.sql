@@ -163,6 +163,7 @@ CREATE TABLE `orders` (
   `payment_method` enum('COD','PROMPTPAY') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'COD',
   `payment_status` enum('UNPAID','PENDING_VERIFY','PAID') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'UNPAID',
   `order_status` enum('PENDING','PREPARING','SHIPPING','DELIVERED','CANCELLED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
+  `delivery_proof` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `note` text COLLATE utf8mb4_unicode_ci,
   `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),

@@ -31,6 +31,7 @@ function EditProducts() {
   const [selected, setSelected] = useState(null);
   const [qty, setQty] = useState(0);
   const [price, setPrice] = useState(0);
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -66,6 +67,7 @@ function EditProducts() {
     setSelected(p.pharmacy_product_id);
     setQty(p.stock);
     setPrice(p.price);
+    setDescription(p.description || "");
   };
 
   const handleSave = async () => {
@@ -73,9 +75,19 @@ function EditProducts() {
 
     try {
       setSaving(true);
-      const result = await updatePharmacyProduct(pharmacyId, selected, {
+      const currentProduct = products.find(
+        (product) => product.pharmacy_product_id === selected
+      );
+      const updateData = {
         stock: Number(qty),
         price: Number(price),
+      };
+      if (currentProduct?.created_by_pharmacy_id === pharmacyId) {
+        updateData.description = description;
+      }
+
+      const result = await updatePharmacyProduct(pharmacyId, selected, {
+        ...updateData,
       });
       const updatedProduct = result.data;
 
@@ -86,6 +98,10 @@ function EditProducts() {
                 ...product,
                 stock: updatedProduct?.stock ?? Number(qty),
                 price: updatedProduct?.price ?? Number(price),
+                description:
+                  currentProduct?.created_by_pharmacy_id === pharmacyId
+                    ? updatedProduct?.description ?? (description.trim() || null)
+                    : product.description,
               }
             : product
         )
@@ -98,6 +114,12 @@ function EditProducts() {
       setSaving(false);
     }
   };
+
+  const selectedProduct = products.find(
+    (product) => product.pharmacy_product_id === selected
+  );
+  const canEditDescription =
+    selectedProduct?.created_by_pharmacy_id === pharmacyId;
 
   const handleAddProduct = async (event) => {
     event.preventDefault();
@@ -166,6 +188,9 @@ function EditProducts() {
                 <div className="ep-item" key={p.pharmacy_product_id}>
                   <div className="ep-item-left">
                     <div className="ep-name">{p.product_name}</div>
+                    <div className="ep-description">
+                      {p.description || "ไม่มีรายละเอียดสินค้า"}
+                    </div>
                     <div className="ep-meta">จำนวน: {p.stock} ชิ้น</div>
                   </div>
                   <div className="ep-item-right">
@@ -257,6 +282,20 @@ function EditProducts() {
                 </form>
               ) : selected ? (
                 <div className="ep-edit-form">
+                  <div className="ep-field">
+                    <label htmlFor="edit-product-description">รายละเอียดสินค้า</label>
+                    <textarea
+                      id="edit-product-description"
+                      value={description}
+                      onChange={(event) => setDescription(event.target.value)}
+                      readOnly={!canEditDescription}
+                    />
+                    {!canEditDescription && (
+                      <small className="ep-readonly-note">
+                        ร้านนี้ไม่ได้เป็นผู้สร้างสินค้า จึงแก้ไขรายละเอียดไม่ได้
+                      </small>
+                    )}
+                  </div>
                   <div className="ep-field">
                     <label>ชื่อสินค้า</label>
                     <input value={products.find((x) => x.pharmacy_product_id === selected)?.product_name || ""} readOnly />

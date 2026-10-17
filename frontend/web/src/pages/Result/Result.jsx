@@ -42,6 +42,7 @@ function Result() {
   );
 
   const [result, setResult] = useState(imageId ? null : savedResult);
+  const [selectedMedicines, setSelectedMedicines] = useState([]);
   const [loading, setLoading] = useState(Boolean(imageId));
   const [error, setError] = useState("");
   const [hotlines, setHotlines] = useState([]);
@@ -102,12 +103,16 @@ function Result() {
   const imagePath = imageId ? result?.wound?.image_path : result?.upload?.image_path;
   const woundLatitude = imageId ? result?.wound?.latitude : result?.upload?.latitude;
   const woundLongitude = imageId ? result?.wound?.longitude : result?.upload?.longitude;
-  const shopLink = woundLatitude != null && woundLongitude != null
-    ? `/shop/buy?latitude=${encodeURIComponent(woundLatitude)}&longitude=${encodeURIComponent(woundLongitude)}`
-    : "/shop/buy";
   const medicines = recommendation?.pro_reccom
     ? recommendation.pro_reccom.split(",").map((medicine) => medicine.trim()).filter(Boolean)
     : [];
+  const shopSearchParams = new URLSearchParams({ source: "result" });
+  if (woundLatitude != null && woundLongitude != null) {
+    shopSearchParams.set("latitude", woundLatitude);
+    shopSearchParams.set("longitude", woundLongitude);
+  }
+  selectedMedicines.forEach((medicine) => shopSearchParams.append("medicine", medicine));
+  const shopLink = `/shop/buy?${shopSearchParams.toString()}`;
   const predictLabel = prediction?.predict_label || "";
   const isLargeCut = prediction?.length === "ยาว" && prediction?.depth === "ลึก";
   const referenceKey = predictLabel.includes("แผลฉีกขาด")
@@ -121,6 +126,13 @@ function Result() {
           : null;
   const references = referenceKey ? woundReferences[referenceKey] : [];
   const confidence = Number(prediction?.confidence);
+  const toggleMedicine = (medicine) => {
+    setSelectedMedicines((current) =>
+      current.includes(medicine)
+        ? current.filter((selected) => selected !== medicine)
+        : [...current, medicine]
+    );
+  };
 
   return (
     <div className="result-page">
@@ -165,7 +177,14 @@ function Result() {
             <div className="medicine-list">
               {medicines.length > 0 ? (
                 medicines.map((medicine) => (
-                  <p key={medicine}>{medicine}</p>
+                  <label className="medicine-option" key={medicine}>
+                    <input
+                      type="checkbox"
+                      checked={selectedMedicines.includes(medicine)}
+                      onChange={() => toggleMedicine(medicine)}
+                    />
+                    <span>{medicine}</span>
+                  </label>
                 ))
               ) : (
                 <p>{isNoWound ? "ไม่จำเป็นต้องใช้ยาสำหรับบาดแผล" : "ไม่มีข้อมูลยาที่แนะนำ"}</p>
@@ -186,10 +205,7 @@ function Result() {
             <h2>{prediction?.predict_label || "ไม่พบผลการพยากรณ์"}</h2>
 
             <p>
-              ระดับความอันตราย : {recommendation?.risk || "ไม่ระบุ"}
-            </p>
-            <p>
-              ความมั่นใจของโมเดล : {Number.isFinite(confidence) ? `${confidence.toFixed(2)}%` : "ไม่ระบุ"}
+              ค่าความเชื่อมั่น : {Number.isFinite(confidence) ? `${confidence.toFixed(2)}%` : "ไม่ระบุ"}
             </p>
 
           </div>

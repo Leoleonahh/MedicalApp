@@ -2,6 +2,7 @@ import { Router } from "express";
 import { cancelOrderController, checkout, getOrderDetailController, getOrdersByPharmacyController, getOrdersByUserController, getPharmacyOrderDetailController, updateStatus } from "../controllers/order.controller";
 import { generateQR } from "../controllers/order.payment.controller";
 import { authMiddleware } from "../services/auth.service";
+import { uploadDeliveryProof } from "../middlewares/uploadDeliveryProof";
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.get(
 router.put(
     "/:orderId/status",
     authMiddleware,
+    uploadDeliveryProof.single("delivery_proof"),
     updateStatus
 );
 
@@ -48,6 +50,7 @@ router.put(
 
 router.get(
     "/pharmacy/orders/:orderId",
+    authMiddleware,
     getPharmacyOrderDetailController
 );
 

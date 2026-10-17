@@ -1,6 +1,6 @@
 import "./Shop.css";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Topbar from "../../layouts/Topbar";
 import { getPharmacyProducts } from "../../api/pharmacy.api";
 import {
@@ -18,11 +18,15 @@ import api from "../../api/axios";
 const API_URL = import.meta.env.VITE_API_URL;
 
 function Shop() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const selectedMedicines = searchParams.getAll("medicine");
   const [cartCount, setCartCount] = useState(0);
   const [products, setProducts] = useState([]);
   const [shopInfo, setShopInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [cartAlert, setCartAlert] = useState("");
   const [addingProductId, setAddingProductId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedWoundType, setSelectedWoundType] = useState("");
@@ -117,10 +121,15 @@ function Shop() {
       if (count !== null) setCartCount(count);
     } catch (requestError) {
       console.error("Add product to cart error:", requestError);
-      setError(
+      const message =
         requestError.response?.data?.message ||
-        "ไม่สามารถเพิ่มสินค้าลงตะกร้าได้"
-      );
+        "ไม่สามารถเพิ่มสินค้าลงตะกร้าได้";
+
+      if (message.includes("กรุณาล้างตะกร้าก่อน")) {
+        setCartAlert(message);
+      } else {
+        setError(message);
+      }
     } finally {
       setAddingProductId(null);
     }
@@ -167,16 +176,28 @@ function Shop() {
       ?.toLowerCase()
       .includes(searchTerm.trim().toLowerCase())
   );
-  const filteredProducts = selectedWoundType
-    ? searchFilteredProducts.filter((product) => {
-        const productName = normalizeProductName(product.product_name || "");
-        return recommendedMedicineNames.some((medicineName) => {
-          const normalizedMedicineName = normalizeProductName(medicineName);
-          return productName.includes(normalizedMedicineName) ||
-            normalizedMedicineName.includes(productName);
-        });
-      })
-    : searchFilteredProducts;
+  const filteredProducts = searchFilteredProducts.filter((product) => {
+    const productName = normalizeProductName(product.product_name || "");
+    const matchesSelectedMedicine =
+      selectedMedicines.length === 0 ||
+      selectedMedicines.some((medicineName) => {
+        const normalizedMedicineName = normalizeProductName(medicineName);
+        return productName.includes(normalizedMedicineName) ||
+          normalizedMedicineName.includes(productName);
+      });
+    const matchesWoundType =
+      !selectedWoundType ||
+      recommendedMedicineNames.some((medicineName) => {
+        const normalizedMedicineName = normalizeProductName(medicineName);
+        return productName.includes(normalizedMedicineName) ||
+          normalizedMedicineName.includes(productName);
+      });
+
+    return matchesSelectedMedicine && matchesWoundType;
+  });
+  const shopBackLink = searchParams.size
+    ? `/shop/buy?${searchParams.toString()}`
+    : "/shop/buy";
 
   return (
     <div className="shop-page">
@@ -185,7 +206,7 @@ function Shop() {
 
       <div className="shop-header">
 
-        <Link to="/shop/buy">
+        <Link to={shopBackLink}>
           <FaArrowLeft className="back-btn"/>
         </Link>
 
@@ -236,6 +257,17 @@ function Shop() {
           {recommendationError && <p className="wound-filter-error">{recommendationError}</p>}
         </div>
 
+        {selectedMedicines.length > 0 && (
+          <section className="selected-medicines">
+            <h2>ยาที่เลือกจากผลวิเคราะห์</h2>
+            <ul>
+              {selectedMedicines.map((medicine) => (
+                <li key={medicine}>{medicine}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         <div className="products-grid">
 
           {loading && <p>กำลังโหลดสินค้า...</p>}
@@ -246,7 +278,9 @@ function Shop() {
 
           {!loading && !error && products.length > 0 && filteredProducts.length === 0 && (
             <p>
-              {selectedWoundType
+              {selectedMedicines.length > 0
+                ? "ร้านนี้ยังไม่มีสินค้าที่ตรงกับยาที่เลือก"
+                : selectedWoundType
                 ? "ร้านนี้ยังไม่มีสินค้าที่ตรงกับยาที่แนะนำสำหรับบาดแผลนี้"
                 : "ไม่พบสินค้าที่ค้นหา"}
             </p>
@@ -266,6 +300,10 @@ function Shop() {
 
               <div className="product-name">
                 {item.product_name}
+              </div>
+
+              <div className="product-description">
+                {item.description || "ไม่มีรายละเอียดสินค้า"}
               </div>
 
               <div className="product-price">
@@ -309,6 +347,43 @@ function Shop() {
 
       </div>
 
+      {cartAlert && (
+        <div className="shop-cart-alert-backdrop">
+          <section
+            className="shop-cart-alert"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="shop-cart-alert-title"
+          >
+            <button
+              type="button"
+              className="shop-cart-alert-close"
+              onClick={() => setCartAlert("")}
+              aria-label="ปิดข้อความ"
+            >
+              ×
+            </button>
+            <h2 id="shop-cart-alert-title">ไม่สามารถเพิ่มสินค้าจากร้านนี้ได้</h2>
+            <p>{cartAlert}</p>
+            <div className="shop-cart-alert-actions">
+              <button
+                type="button"
+                className="shop-cart-alert-secondary"
+                onClick={() => setCartAlert("")}
+              >
+                ปิด
+              </button>
+              <button
+                type="button"
+                className="shop-cart-alert-primary"
+                onClick={() => navigate("/cart")}
+              >
+                ไปที่ตะกร้า
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

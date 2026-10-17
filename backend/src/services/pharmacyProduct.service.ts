@@ -71,6 +71,7 @@ export const createProductForPharmacy = async (
       product_id: savedProduct.product_id,
       product_name: savedProduct.product_name,
       description: savedProduct.description,
+      created_by_pharmacy_id: savedProduct.created_by_pharmacy_id,
       type: productType.type_name,
       image: savedProduct.image,
       price: savedPharmacyProduct.price,
@@ -88,36 +89,60 @@ const pharmacyProductRepository =
 
 export const updatePharmacyProduct = async (
   pharmacyId: number,
+  userId: number,
   pharmacyProductId: number,
   data: {
     price: number;
     stock: number;
+    description?: string;
   }
 ) => {
+  return AppDataSource.transaction(async (manager) => {
+    const pharmacyProductRepository = manager.getRepository(PharmacyProduct);
+    const productRepository = manager.getRepository(Product);
+    const pharmacyProduct = await pharmacyProductRepository.findOne({
+      where: {
+        pharmacy_product_id: pharmacyProductId,
+        pharmacy_id: pharmacyId,
+      },
+      relations: ["product", "pharmacy"],
+    });
 
-  const product = await pharmacyProductRepository.findOne({
-    where: {
-      pharmacy_product_id: pharmacyProductId,
-      pharmacy_id: pharmacyId,
-    },
+    if (!pharmacyProduct) {
+      throw new Error("Product not found in this pharmacy");
+    }
+
+    if (pharmacyProduct.pharmacy.user_id !== userId) {
+      throw new Error("คุณไม่มีสิทธิ์จัดการร้านค้านี้");
+    }
+
+    if (data.price < 0) {
+      throw new Error("Price cannot be negative");
+    }
+
+    if (data.stock < 0) {
+      throw new Error("Stock cannot be negative");
+    }
+
+    if (data.description !== undefined) {
+      if (pharmacyProduct.product.created_by_pharmacy_id !== pharmacyId) {
+        throw new Error("ไม่สามารถแก้ไขรายละเอียดสินค้าที่ระบบสร้างได้");
+      }
+
+      pharmacyProduct.product.description = data.description.trim() || null;
+      await productRepository.save(pharmacyProduct.product);
+    }
+
+    pharmacyProduct.price = data.price;
+    pharmacyProduct.stock = data.stock;
+    const savedPharmacyProduct = await pharmacyProductRepository.save(pharmacyProduct);
+
+    return {
+      ...savedPharmacyProduct,
+      description: pharmacyProduct.product.description,
+      created_by_pharmacy_id: pharmacyProduct.product.created_by_pharmacy_id,
+    };
   });
-
-  if (!product) {
-    throw new Error("Product not found in this pharmacy");
-  }
-
-  if (data.price < 0) {
-    throw new Error("Price cannot be negative");
-  }
-
-  if (data.stock < 0) {
-    throw new Error("Stock cannot be negative");
-  }
-
-  product.price = data.price;
-  product.stock = data.stock;
-
-  return await pharmacyProductRepository.save(product);
 };
 
 export const getProductsByPharmacy = async (

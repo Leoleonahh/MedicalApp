@@ -4,10 +4,27 @@ import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import "./ShopOrderDetail.css";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function ShopOrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
+  const [deliveryProof, setDeliveryProof] = useState(null);
+  const [deliveryProofPreview, setDeliveryProofPreview] = useState("");
+  const [statusError, setStatusError] = useState("");
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  useEffect(() => {
+    if (!deliveryProof) {
+      setDeliveryProofPreview("");
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(deliveryProof);
+    setDeliveryProofPreview(previewUrl);
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [deliveryProof]);
 
   useEffect(() => {
     const loadOrder = async () => {
@@ -58,15 +75,37 @@ function ShopOrderDetail() {
   async function updateStatus(orderStatus) {
     if (!order) return;
 
+    if (orderStatus === "DELIVERED" && !deliveryProof) {
+      setStatusError("กรุณาแนบรูปหลักฐานการจัดส่งก่อนเปลี่ยนสถานะเป็นจัดส่งแล้ว");
+      return;
+    }
+
     try {
-      const response = await api.put(`/orders/${order.id}/status`, {
-        order_status: orderStatus,
-      });
+      setUpdatingStatus(true);
+      setStatusError("");
+      const formData = new FormData();
+      formData.append("order_status", orderStatus);
+      if (orderStatus === "DELIVERED" && deliveryProof) {
+        formData.append("delivery_proof", deliveryProof);
+      }
+      const response = await api.put(
+        `/orders/${order.id}/status`,
+        formData,
+        { headers: { "Content-Type": undefined } }
+      );
       const updatedStatus = response.data?.data?.order_status || orderStatus;
-      setOrder((current) => ({ ...current, status: updatedStatus }));
+      setOrder((current) => ({
+        ...current,
+        status: updatedStatus,
+        delivery_proof:
+          response.data?.data?.delivery_proof || current.delivery_proof,
+      }));
+      setDeliveryProof(null);
     } catch (error) {
       console.error("Failed to update pharmacy order status", error);
-      alert(error.response?.data?.message || "ไม่สามารถอัปเดตสถานะ order ได้");
+      setStatusError(error.response?.data?.message || "ไม่สามารถอัปเดตสถานะ order ได้");
+    } finally {
+      setUpdatingStatus(false);
     }
   }
 
@@ -152,6 +191,49 @@ function ShopOrderDetail() {
             <div className="detail-value">{order.total} บาท</div>
           </div>
 
+          {order.status === "SHIPPING" && (
+            <div className="detail-row">
+              <div className="detail-label">หลักฐานการจัดส่ง</div>
+              <div className="detail-value delivery-proof-upload">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => {
+                    setDeliveryProof(event.target.files?.[0] || null);
+                    setStatusError("");
+                  }}
+                />
+                <span>แนบรูปก่อนเลือกสถานะ “จัดส่งแล้ว” (ไม่เกิน 5 MB)</span>
+                {deliveryProofPreview && (
+                  <img
+                    className="delivery-proof-preview"
+                    src={deliveryProofPreview}
+                    alt="ตัวอย่างรูปหลักฐานการจัดส่ง"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {order.delivery_proof && (
+            <div className="detail-row">
+              <div className="detail-label">หลักฐานการจัดส่ง</div>
+              <div className="detail-value">
+                <a
+                  href={`${API_URL}/uploads/delivery-proofs/${encodeURIComponent(order.delivery_proof)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <img
+                    className="delivery-proof-image"
+                    src={`${API_URL}/uploads/delivery-proofs/${encodeURIComponent(order.delivery_proof)}`}
+                    alt="หลักฐานการจัดส่ง"
+                  />
+                </a>
+              </div>
+            </div>
+          )}
+
           <div className="detail-row">
             <div className="detail-label">สถานะการจัดส่ง</div>
             <div className="detail-value">
@@ -159,24 +241,27 @@ function ShopOrderDetail() {
                 value={order.status}
                 onChange={(e) => updateStatus(e.target.value)}
                 className="status-select"
+                disabled={updatingStatus}
               >
                 <option value="PENDING">รอจัดส่ง</option>
                 <option value="PREPARING">กำลังเตรียมสินค้า</option>
                 <option value="SHIPPING">กำลังจัดส่ง</option>
                 <option value="DELIVERED">จัดส่งแล้ว</option>
-                <option value="CANCELLED">ยกเลิก</option>
               </select>
             </div>
           </div>
 
+          {statusError && <p className="status-error">{statusError}</p>}
+
           <div className="detail-actions">
-            <button
-              className="btn btn-cancel"
-              onClick={handleCancel}
-              disabled={order.status === "CANCELLED"}
-            >
-              ยกเลิก order
-            </button>
+              {order.status === "PENDING" && (
+                <button
+                  className="btn btn-cancel"
+                  onClick={handleCancel}
+                >
+                  ยกเลิก order
+                </button>
+              )}
           </div>
         </div>
       </div>

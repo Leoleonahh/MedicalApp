@@ -1,145 +1,290 @@
 .profile-page {
   min-height: 100vh;
+  padding: 28px 24px 48px;
   background: var(--bg);
-  padding: 24px;
   color: var(--text);
 }
 
 .profile-header {
-  display: flex;
+  width: min(1120px, 100%);
+  margin: 0 auto 28px;
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  max-width: 1100px;
-  margin: 0 auto 24px;
+  gap: 18px;
 }
 
 .profile-back,
 .profile-logout {
+  min-height: 46px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 50px;
-  border-radius: 14px;
+  gap: 9px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   background: var(--surface);
   color: var(--text);
-  box-shadow: 0 14px 30px rgba(55, 36, 79, 0.08);
   text-decoration: none;
-  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 
-.profile-header-title {
-  flex: 1;
-  text-align: center;
-  font-size: 18px;
+.profile-back {
+  width: 46px;
+  font-size: 17px;
+}
+
+.profile-logout {
+  padding: 0 16px;
+  font: inherit;
+  font-size: 14px;
   font-weight: 700;
+  cursor: pointer;
+}
+
+.profile-header-title span,
+.profile-eyebrow,
+.profile-section-heading span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.profile-header-title h1 {
+  margin: 2px 0 0;
+  font-size: 25px;
+  line-height: 1.2;
+}
+
+.profile-layout {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  align-items: start;
+  gap: 24px;
+}
+
+.profile-card,
+.profile-actions {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
 .profile-card {
-  background: var(--surface);
-  border-radius: 28px;
-  padding: 32px;
-  box-shadow: var(--shadow);
-  margin: 0 auto 22px;
-  max-width: 1100px;
+  padding: 30px;
 }
 
-.profile-avatar {
+.profile-identity {
   display: flex;
-  justify-content: center;
-  margin-bottom: 24px;
+  align-items: center;
+  gap: 18px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
 }
 
 .profile-avatar-icon {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: #f6e5f1;
-  color: #9b5ca1;
+  width: 76px;
+  height: 76px;
+  flex: 0 0 76px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: #dceee8;
+  color: #24634f;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.profile-name {
+  margin: 4px 0 7px;
+  font-size: 25px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.profile-role {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-size: 44px;
+  min-height: 25px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #fff0e9;
+  color: #a34b32;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .profile-info {
   display: grid;
-  gap: 18px;
-}
-
-.profile-name {
-  text-align: center;
-  font-size: 24px;
-  font-weight: 700;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding-top: 22px;
 }
 
 .profile-field {
+  min-width: 0;
   display: grid;
-  gap: 6px;
-  padding: 18px;
+  gap: 7px;
+  padding: 15px;
+  border-radius: 12px;
   background: var(--surface-soft);
-  border-radius: 20px;
+}
+
+.profile-field:nth-child(2) {
+  grid-column: 1 / -1;
 }
 
 .profile-field span {
-  font-size: 14px;
   color: var(--muted);
+  font-size: 13px;
 }
 
 .profile-field strong {
-  font-size: 16px;
   color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .profile-actions {
-  display: grid;
-  gap: 14px;
-  margin-top: 18px;
+  padding: 24px;
 }
 
-.profile-error {
-  max-width: 1100px;
-  margin: 0 auto 18px;
-  color: #d93025;
-  text-align: center;
+.profile-section-heading {
+  margin-bottom: 16px;
+}
+
+.profile-section-heading h2 {
+  margin: 4px 0 0;
+  font-size: 20px;
+}
+
+.profile-action-list {
+  display: grid;
+  gap: 10px;
 }
 
 .profile-button {
-  display: inline-flex;
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 16px;
   align-items: center;
-  justify-content: center;
-  padding: 14px 18px;
-  border-radius: 18px;
-  font-size: 15px;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.profile-button.primary {
-  background: #fff;
-  color: var(--text);
+  gap: 12px;
+  padding: 0 15px;
   border: 1px solid var(--border);
-}
-
-.profile-button.secondary {
+  border-radius: 12px;
   background: var(--surface);
   color: var(--text);
-  border: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 650;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.16s ease, transform 0.16s ease;
 }
 
-@media(max-width:760px){
-  .profile-header{
-    flex-direction: column;
-    align-items: stretch;
+.profile-button:hover {
+  transform: translateY(-1px);
+  border-color: #6d9c89;
+}
+
+.profile-button > svg:first-child {
+  color: #547a69;
+  font-size: 17px;
+}
+
+.profile-action-arrow {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.profile-button.profile-admin-button {
+  border-color: #b8d8cd;
+  background: #edf7f2;
+  color: #205b48;
+}
+
+.profile-button.profile-admin-button > svg:first-child {
+  color: #205b48;
+}
+
+.profile-error {
+  margin: 0 0 14px;
+  color: #c0392b;
+  font-size: 14px;
+}
+
+@media (max-width: 760px) {
+  .profile-page {
+    padding: 20px 16px 36px;
   }
 
-  .profile-header-title{
-    margin: 0;
+  .profile-header {
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .profile-back {
+    width: 44px;
+    min-height: 44px;
+  }
+
+  .profile-header-title h1 {
+    font-size: 22px;
+  }
+
+  .profile-logout {
+    min-height: 44px;
+    padding: 0 12px;
+  }
+
+  .profile-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
   }
 
   .profile-card {
-    padding: 26px;
+    padding: 22px;
+  }
+
+  .profile-actions {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 420px) {
+  .profile-page {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .profile-header {
+    gap: 8px;
+  }
+
+  .profile-header-title h1 {
+    font-size: 19px;
+  }
+
+  .profile-logout span {
+    display: none;
+  }
+
+  .profile-logout {
+    width: 44px;
+    padding: 0;
+  }
+
+  .profile-info {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .profile-field:nth-child(2) {
+    grid-column: auto;
   }
 }

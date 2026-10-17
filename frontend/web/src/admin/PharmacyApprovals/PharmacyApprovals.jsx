@@ -2,6 +2,7 @@ import "./PharmacyApprovals.css";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
+import AdminProfileLink from "../AdminProfileLink";
 
 function PharmacyApprovals() {
   const [pharmacies, setPharmacies] = useState([]);
@@ -70,6 +71,7 @@ function PharmacyApprovals() {
           <Link to="/admin/model-edit" className="approval-nav-item">ข้อมูลโมเดล</Link>
           <Link to="/admin/pharmacies" className="approval-nav-item">ร้านขายยาที่ลงทะเบียน</Link>
           <Link to="/admin/pharmacy-approvals" className="approval-nav-item active">อนุมัติร้านยา</Link>
+          <AdminProfileLink />
           <Link to="/admin" className="approval-nav-item danger" onClick={handleLogout}>ออกจากระบบ</Link>
         </nav>
       </aside>

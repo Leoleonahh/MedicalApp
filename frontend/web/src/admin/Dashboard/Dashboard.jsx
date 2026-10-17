@@ -2,6 +2,7 @@ import "./Dashboard.css";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
+import AdminProfileLink from "../AdminProfileLink";
 
 const cards = [
   {
@@ -79,6 +80,7 @@ function Dashboard() {
           <Link to="/admin/model-edit" className="nav-item">ข้อมูลโมเดล</Link>
           <Link to="/admin/pharmacies" className="nav-item">ร้านขายยาที่ลงทะเบียน</Link>
           <Link to="/admin/pharmacy-approvals" className="nav-item">อนุมัติร้านยา</Link>
+          <AdminProfileLink />
           <Link to="/admin" className="nav-item danger" onClick={handleLogout}>ออกจากระบบ</Link>
         </nav>
       </aside>

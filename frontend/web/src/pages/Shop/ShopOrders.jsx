@@ -38,7 +38,19 @@ function ShopOrders() {
   useEffect(() => {
     const loadOrders = async () => {
       try {
-        const response = await api.get("/orders/pharmacy/1/orders");
+        const selectedShop = JSON.parse(
+          localStorage.getItem("selected_shop") || "null"
+        );
+
+        if (!selectedShop?.pharmacy_id) {
+          setOrders([]);
+          localStorage.setItem("shop_orders", "[]");
+          return;
+        }
+
+        const response = await api.get(
+          `/orders/pharmacy/${selectedShop.pharmacy_id}/orders`
+        );
         const data = response.data?.data || [];
         const mappedOrders = data.map((order) => {
           const isCashOnDelivery = order.payment_method === "COD";
@@ -69,6 +81,50 @@ function ShopOrders() {
     loadOrders();
   }, []);
 
+  const inProgressOrders = orders.filter(
+    (order) => !["DELIVERED", "CANCELLED"].includes(order.status)
+  );
+  const deliveredOrders = orders.filter((order) => order.status === "DELIVERED");
+  const cancelledOrders = orders.filter((order) => order.status === "CANCELLED");
+
+  const renderOrderCard = (order) => (
+    <div key={order.id} className="order-card-link">
+      <div className="order-card">
+        <Link to={`/shop/orders/${order.id}`} className="order-left order-code-link">
+          {order.code}
+        </Link>
+        <div className="order-status">สถานะ: {order.status}</div>
+        <div className={`order-right ${order.paid ? "paid" : "unpaid"}`}>
+          <div>{order.payment === "COD" ? "เก็บเงินปลายทาง" : "PromptPay"}</div>
+          <div>{order.paid ? "ชำระเงินแล้ว" : "ยังไม่ชำระเงิน"}</div>
+          <div>{order.paid ? "เรียบร้อย" : "ไม่เรียบร้อย"}</div>
+        </div>
+        <button
+          type="button"
+          className="confirm-payment-button"
+          onClick={() => confirmPayment(order.id)}
+          disabled={order.payment === "COD" || order.payment_status === "PAID"}
+        >
+          {order.payment_status === "PAID" ? "ยืนยันแล้ว" : "ยืนยันการชำระเงิน"}
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderOrderSection = (title, sectionOrders, emptyMessage) => (
+    <section className="order-section">
+      <header className="order-section-header">
+        <h2>{title}</h2>
+        <span>{sectionOrders.length} รายการ</span>
+      </header>
+      {sectionOrders.length > 0 ? (
+        <div className="orders-list">{sectionOrders.map(renderOrderCard)}</div>
+      ) : (
+        <p className="order-section-empty">{emptyMessage}</p>
+      )}
+    </section>
+  );
+
   return (
     <div className="orders-page">
       <div className="left-accent" />
@@ -81,30 +137,10 @@ function ShopOrders() {
           <h1 className="orders-title">ออเดอร์ทั้งหมด</h1>
         </header>
 
-        <div className="orders-list">
-          {orders.map((o) => (
-            <div key={o.id} className="order-card-link">
-              <div className="order-card">
-                <Link to={`/shop/orders/${o.id}`} className="order-left order-code-link">
-                  {o.code}
-                </Link>
-                <div className="order-status">สถานะ: {o.status}</div>
-                <div className={"order-right " + (o.paid ? "paid" : "unpaid")}>
-                  <div>{o.payment === "COD" ? "เก็บเงินปลายทาง" : "PromptPay"}</div>
-                  <div>{o.paid ? "ชำระเงินแล้ว" : "ยังไม่ชำระเงิน"}</div>
-                  <div>{o.paid ? "เรียบร้อย" : "ไม่เรียบร้อย"}</div>
-                </div>
-                <button
-                  type="button"
-                  className="confirm-payment-button"
-                  onClick={() => confirmPayment(o.id)}
-                  disabled={o.payment === "COD" || o.payment_status === "PAID"}
-                >
-                  {o.payment_status === "PAID" ? "ยืนยันแล้ว" : "ยืนยันการชำระเงิน"}
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className="orders-sections">
+          {renderOrderSection("กำลังดำเนินการ", inProgressOrders, "ไม่มีออเดอร์ที่กำลังดำเนินการ")}
+          {renderOrderSection("ส่งเรียบร้อยแล้ว", deliveredOrders, "ยังไม่มีออเดอร์ที่ส่งเรียบร้อย")}
+          {renderOrderSection("ยกเลิก", cancelledOrders, "ยังไม่มีออเดอร์ที่ถูกยกเลิก")}
         </div>
       </div>
     </div>

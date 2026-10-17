@@ -29,6 +29,8 @@ export const checkout = async (
     receiver_name,
     receiver_phone,
     delivery_address,
+    delivery_latitude,
+    delivery_longitude,
     payment_method,
     note,
     } = req.body;
@@ -49,6 +51,14 @@ export const checkout = async (
       receiver_name,
       receiver_phone,
       delivery_address,
+            delivery_latitude:
+                delivery_latitude == null || delivery_latitude === ""
+                    ? Number.NaN
+                    : Number(delivery_latitude),
+            delivery_longitude:
+                delivery_longitude == null || delivery_longitude === ""
+                    ? Number.NaN
+                    : Number(delivery_longitude),
       payment_method,
       note,
     });
@@ -72,7 +82,7 @@ export const checkout = async (
 
 //อัพเดดสถานะ order
 export const updateStatus = async (
-    req: Request & { user?: any },
+    req: Request & { user?: any; file?: Express.Multer.File },
     res: Response
 ) => {
 
@@ -81,8 +91,7 @@ export const updateStatus = async (
         const orderId =
             Number(req.params.orderId);
 
-        const orderStatus =
-            req.body.order_status;
+            const orderStatus = req.body.order_status;
 
         const userId =
             req.user?.user_id;
@@ -100,7 +109,8 @@ export const updateStatus = async (
             await updateOrderStatus(
                 orderId,
                 userId,
-                orderStatus
+                orderStatus,
+                req.file?.filename
             );
 
         return res.json({
@@ -117,6 +127,9 @@ export const updateStatus = async (
 
                 order_status:
                     order.order_status,
+
+                delivery_proof:
+                    order.delivery_proof,
 
             },
 
@@ -372,8 +385,7 @@ export const cancelOrderController = async (
 
 // ดึงรายละเอียด Order ของร้านขายยา
 export const getPharmacyOrderDetailController = async (
-
-    req: Request,
+    req: Request & { user?: any },
 
     res: Response
 
@@ -381,12 +393,27 @@ export const getPharmacyOrderDetailController = async (
 
     try {
 
+        const userId = req.user?.user_id;
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
+
         const result =
             await getPharmacyOrderDetail(
 
                 Number(req.params.orderId)
 
             );
+
+        if (result.order.pharmacy.user_id !== Number(userId)) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not allowed to view this order",
+            });
+        }
 
         return res.json({
 

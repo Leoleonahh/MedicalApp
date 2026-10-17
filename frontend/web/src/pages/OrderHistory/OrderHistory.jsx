@@ -25,7 +25,17 @@ function OrderHistory() {
     loadOrders();
   }, []);
 
-  const orderCards = orders.map((order) => {
+  const inProgressOrders = orders.filter(
+    (order) => !["DELIVERED", "CANCELLED"].includes(order.order_status)
+  );
+  const deliveredOrders = orders.filter(
+    (order) => order.order_status === "DELIVERED"
+  );
+  const cancelledOrders = orders.filter(
+    (order) => order.order_status === "CANCELLED"
+  );
+
+  const renderOrderCard = (order) => {
     const items = order.items || [];
     const displayDate = order.created_at
       ? new Date(order.created_at).toLocaleString("th-TH", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
@@ -55,7 +65,23 @@ function OrderHistory() {
         </div>
       </Link>
     );
-  });
+  };
+
+  const renderOrderSection = (title, sectionOrders, emptyMessage) => (
+    <section className="order-history-section">
+      <header className="order-history-section-header">
+        <h2>{title}</h2>
+        <span>{sectionOrders.length} รายการ</span>
+      </header>
+      {sectionOrders.length > 0 ? (
+        <div className="order-history-list">
+          {sectionOrders.map(renderOrderCard)}
+        </div>
+      ) : (
+        <p className="order-history-section-empty">{emptyMessage}</p>
+      )}
+    </section>
+  );
 
   return (
     <div className="order-history-page">
@@ -81,8 +107,10 @@ function OrderHistory() {
           </Link>
         </div>
       ) : (
-        <div className="order-history-list">
-          {orderCards}
+        <div className="order-history-sections">
+          {renderOrderSection("กำลังดำเนินการ", inProgressOrders, "ไม่มีออเดอร์ที่กำลังดำเนินการ")}
+          {renderOrderSection("ส่งเรียบร้อยแล้ว", deliveredOrders, "ยังไม่มีออเดอร์ที่ส่งเรียบร้อย")}
+          {renderOrderSection("ยกเลิก", cancelledOrders, "ยังไม่มีออเดอร์ที่ถูกยกเลิก")}
         </div>
       )}
     </div>
