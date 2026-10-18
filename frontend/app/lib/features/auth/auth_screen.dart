@@ -20,6 +20,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _confirmPassword = TextEditingController();
   bool _loading = false;
   bool _obscure = true;
+  bool _obscureConfirm = true;
   String? _error;
 
   @override
@@ -111,8 +112,14 @@ class _AuthScreenState extends State<AuthScreen> {
                       const SizedBox(height: 14),
                       TextFormField(
                         controller: _confirmPassword,
-                        obscureText: _obscure,
-                        decoration: const InputDecoration(labelText: 'ยืนยันรหัสผ่าน'),
+                        obscureText: _obscureConfirm,
+                        decoration: InputDecoration(
+                          labelText: 'ยืนยันรหัสผ่าน',
+                          suffixIcon: IconButton(
+                            icon: Icon(_obscureConfirm ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                            onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                          ),
+                        ),
                         validator: (value) => value != _password.text ? 'รหัสผ่านไม่ตรงกัน' : null,
                       ),
                     ],

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
@@ -15,7 +16,7 @@ import OrderDetail from "../pages/OrderHistory/OrderDetail";
 import Profile from "../pages/Profile/Profile";
 import ChangePassword from "../pages/Profile/ChangePassword";
 import EditProfile from "../pages/Profile/EditProfile";
-import CreateShop from "../pages/Shop/CreateShop";
+const CreateShop = lazy(() => import("../pages/Shop/CreateShop"));
 import ManageShop from "../pages/Shop/ManageShop";
 import ShopProfile from "../pages/Shop/ShopProfile";
 import ShopEdit from "../pages/Shop/ShopEdit";
@@ -41,7 +42,14 @@ function UserRoutes() {
       <Route path="/history" element={<History />} />
       <Route path="/hospital" element={<Hospital />} />
       <Route path="/shop" element={<Shop />} />
-      <Route path="/shop/create" element={<CreateShop />} />
+      <Route
+        path="/shop/create"
+        element={(
+          <Suspense fallback={<div className="create-shop-loading">กำลังโหลด...</div>}>
+            <CreateShop />
+          </Suspense>
+        )}
+      />
       <Route path="/shop/manage" element={<ManageShop />} />
       <Route path="/shop/profile" element={<ShopProfile />} />
       <Route path="/shop/edit" element={<ShopEdit />} />

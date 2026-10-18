@@ -1,9 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:dio/dio.dart';
 
 import '../../core/api_client.dart';
+import '../../core/theme.dart';
 import '../../core/widgets.dart';
 
 class CartScreen extends StatefulWidget {
@@ -48,57 +51,184 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> _remove(Map<String, dynamic> item) async {
     try {
       await ApiClient.instance.delete('/cart/item/${item['cart_item_id']}');
-      await _load();
+      if (_items.length == 1) {
+        if (mounted) setState(() { _cart = {}; _items = []; _error = null; });
+      } else {
+        await _load();
+      }
+    } catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(apiError(error))));
+    }
+  }
+
+  Future<void> _clearCart() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('ล้างตะกร้าสินค้า?'),
+        content: const Text('สินค้าทั้งหมดจะถูกนำออกจากตะกร้า'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('ยกเลิก')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('ล้างตะกร้า')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      await ApiClient.instance.delete('/cart/clear');
+      if (mounted) setState(() { _cart = {}; _items = []; _error = null; });
     } catch (error) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(apiError(error))));
     }
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('ตะกร้าสินค้า'), actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))]),
-        body: _loading
-            ? const PageLoading()
-            : _error != null && _items.isEmpty
-                ? ErrorMessage(_error!, onRetry: _load)
-                : _items.isEmpty
-                    ? const Center(child: Text('ตะกร้าของคุณยังว่าง'))
-                    : Column(children: [
-                        if (_cart['pharmacy_name'] != null) ListTile(title: Text(_cart['pharmacy_name'].toString(), style: const TextStyle(fontWeight: FontWeight.w800)), leading: const Icon(Icons.storefront_outlined)),
-                        Expanded(child: ListView.separated(
+  Widget build(BuildContext context) {
+    final pharmacy = Map<String, dynamic>.from(_cart['pharmacy'] as Map? ?? {});
+    final apiRoot = ApiClient.instance.dio.options.baseUrl;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('ตะกร้าสินค้า'),
+        actions: [
+          IconButton(onPressed: _load, tooltip: 'รีเฟรช', icon: const Icon(Icons.refresh)),
+          if (_items.isNotEmpty)
+            IconButton(
+              onPressed: _clearCart,
+              tooltip: 'ล้างตะกร้า',
+              icon: const Icon(Icons.delete_sweep_outlined, color: AppColors.danger),
+            ),
+        ],
+      ),
+      body: _loading
+          ? const PageLoading()
+          : _error != null && _items.isEmpty
+              ? ErrorMessage(_error!, onRetry: _load)
+              : _items.isEmpty
+                  ? Center(
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        Container(
+                          width: 76,
+                          height: 76,
+                          decoration: BoxDecoration(color: AppColors.pinkSoft, borderRadius: BorderRadius.circular(24)),
+                          child: const Icon(Icons.shopping_bag_outlined, size: 38, color: AppColors.pink),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('ตะกร้าของคุณยังว่าง', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: () => context.go('/shop'),
+                          icon: const Icon(Icons.local_pharmacy_outlined),
+                          label: const Text('เลือกร้านขายยา'),
+                        ),
+                      ]),
+                    )
+                  : Column(children: [
+                      if (pharmacy.isNotEmpty)
+                        Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(color: AppColors.pinkSoft, borderRadius: BorderRadius.circular(12)),
+                          child: Row(children: [
+                            const Icon(Icons.storefront_outlined, color: AppColors.pink),
+                            const SizedBox(width: 10),
+                            Expanded(child: Text(pharmacy['pharmacy_name']?.toString() ?? 'ร้านขายยา', style: const TextStyle(fontWeight: FontWeight.w700))),
+                            Text('${_cart['total_quantity'] ?? _items.length} ชิ้น', style: const TextStyle(color: AppColors.muted)),
+                          ]),
+                        ),
+                      Expanded(
+                        child: ListView.separated(
                           padding: const EdgeInsets.all(16),
                           itemCount: _items.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 9),
+                          separatorBuilder: (_, __) => const SizedBox(height: 10),
                           itemBuilder: (context, index) {
                             final item = _items[index];
-                            return Card(child: Padding(
-                              padding: const EdgeInsets.all(14),
-                              child: Row(children: [
-                                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                  Text(item['product_name']?.toString() ?? '-', style: const TextStyle(fontWeight: FontWeight.w700)),
-                                  const SizedBox(height: 5),
-                                  Text('฿${item['price']} • รวม ฿${item['subtotal']}'),
-                                  Row(children: [
-                                    IconButton(onPressed: () => _changeQuantity(item, -1), icon: const Icon(Icons.remove_circle_outline)),
-                                    Text('${item['quantity']}'),
-                                    IconButton(onPressed: () => _changeQuantity(item, 1), icon: const Icon(Icons.add_circle_outline)),
+                            final image = item['image']?.toString();
+                            final quantity = int.tryParse('${item['quantity']}') ?? 1;
+                            final stock = int.tryParse('${item['stock']}') ?? 0;
+                            return Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Column(children: [
+                                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: image == null || image.isEmpty
+                                          ? Container(width: 76, height: 76, color: AppColors.pinkSoft, child: const Icon(Icons.medication_outlined, color: AppColors.pink))
+                                          : Image.network(
+                                              '$apiRoot/uploads/products/${Uri.encodeComponent(image)}',
+                                              width: 76,
+                                              height: 76,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) => Container(width: 76, height: 76, color: AppColors.pinkSoft, child: const Icon(Icons.image_not_supported_outlined)),
+                                            ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                      Text(item['product_name']?.toString() ?? '-', style: const TextStyle(fontWeight: FontWeight.w700)),
+                                      if (item['type'] != null) ...[
+                                        const SizedBox(height: 4),
+                                        Text(item['type'].toString(), style: const TextStyle(color: AppColors.muted)),
+                                      ],
+                                      const SizedBox(height: 6),
+                                      Text('฿${item['price'] ?? 0} / ชิ้น', style: const TextStyle(fontWeight: FontWeight.w600)),
+                                    ])),
+                                    IconButton(onPressed: () => _remove(item), tooltip: 'นำออก', icon: const Icon(Icons.delete_outline, color: AppColors.danger)),
                                   ]),
-                                ])),
-                                IconButton(onPressed: () => _remove(item), icon: const Icon(Icons.delete_outline)),
-                              ]),
-                            ));
+                                  const Divider(height: 22),
+                                  Row(children: [
+                                    const Text('จำนวน'),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      onPressed: quantity > 1 ? () => _changeQuantity(item, -1) : null,
+                                      tooltip: 'ลดจำนวน',
+                                      icon: const Icon(Icons.remove_circle_outline),
+                                    ),
+                                    Container(
+                                      constraints: const BoxConstraints(minWidth: 34),
+                                      alignment: Alignment.center,
+                                      child: Text('$quantity', style: const TextStyle(fontWeight: FontWeight.w700)),
+                                    ),
+                                    IconButton(
+                                      onPressed: quantity < stock ? () => _changeQuantity(item, 1) : null,
+                                      tooltip: 'เพิ่มจำนวน',
+                                      icon: const Icon(Icons.add_circle_outline),
+                                    ),
+                                    const Spacer(),
+                                    Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                                      const Text('รวม'),
+                                      Text('฿${item['subtotal'] ?? 0}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                                    ]),
+                                  ]),
+                                ]),
+                              ),
+                            );
                           },
-                        )),
-                        SafeArea(top: false, child: Padding(
-                          padding: const EdgeInsets.fromLTRB(18, 8, 18, 16),
+                        ),
+                      ),
+                      SafeArea(
+                        top: false,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            border: Border(top: BorderSide(color: AppColors.border)),
+                          ),
                           child: Column(children: [
-                            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Text('รวมทั้งหมด'), Text('฿${_cart['total_price'] ?? _cart['total'] ?? 0}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800))]),
+                            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                              const Text('ยอดรวม', style: TextStyle(fontWeight: FontWeight.w600)),
+                              Text('฿${_cart['total_price'] ?? _cart['total'] ?? 0}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                            ]),
                             const SizedBox(height: 12),
                             FilledButton(onPressed: () => context.push('/checkout', extra: _cart), child: const Text('ไปยืนยันคำสั่งซื้อ')),
                           ]),
-                        )),
-                      ]),
-      );
+                        ),
+                      ),
+                    ]),
+    );
+  }
 }
 
 class CheckoutScreen extends StatefulWidget {
@@ -116,9 +246,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _loading = false;
   String? _error;
   List<Map<String, dynamic>> _items = [];
+  Map<String, dynamic> _pharmacy = {};
   double _total = 0;
   bool _locationLoading = false;
   String? _locationError;
+  double? _deliveryLatitude;
+  double? _deliveryLongitude;
 
   @override
   void didChangeDependencies() {
@@ -128,6 +261,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final data = Map<String, dynamic>.from(extra);
       _items = asMapList(data['items']);
       _total = double.tryParse('${data['total_price'] ?? 0}') ?? 0;
+      _pharmacy = Map<String, dynamic>.from(data['pharmacy'] as Map? ?? {});
     }
   }
 
@@ -154,6 +288,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           timeLimit: Duration(seconds: 10),
         ),
       );
+      _deliveryLatitude = position.latitude;
+      _deliveryLongitude = position.longitude;
       final coordinateAddress = 'ตำแหน่งปัจจุบัน: ${position.latitude.toStringAsFixed(6)}, ${position.longitude.toStringAsFixed(6)}';
       _address.text = coordinateAddress;
 
@@ -188,17 +324,77 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
+  Future<({double latitude, double longitude})> _geocodeDeliveryAddress(String address) async {
+    final response = await Dio().get<dynamic>(
+      'https://nominatim.openstreetmap.org/search',
+      queryParameters: {
+        'countrycodes': 'th',
+        'format': 'jsonv2',
+        'limit': 1,
+        'q': address,
+      },
+    );
+    if (response.data is! List || (response.data as List).isEmpty) {
+      throw Exception('ไม่พบพิกัดที่อยู่จัดส่ง กรุณาระบุที่อยู่ให้ชัดเจน');
+    }
+    final result = (response.data as List).first;
+    if (result is! Map) throw Exception('ไม่พบพิกัดที่อยู่จัดส่ง กรุณาระบุที่อยู่ให้ชัดเจน');
+    final latitude = double.tryParse('${result['lat']}');
+    final longitude = double.tryParse('${result['lon']}');
+    if (latitude == null || longitude == null) {
+      throw Exception('ไม่พบพิกัดที่อยู่จัดส่ง กรุณาระบุที่อยู่ให้ชัดเจน');
+    }
+    return (latitude: latitude, longitude: longitude);
+  }
+
+  double _distanceInKilometers(double firstLatitude, double firstLongitude, double secondLatitude, double secondLongitude) {
+    double toRadians(double degrees) => degrees * math.pi / 180;
+    final latitudeDifference = toRadians(secondLatitude - firstLatitude);
+    final longitudeDifference = toRadians(secondLongitude - firstLongitude);
+    final haversine = math.pow(math.sin(latitudeDifference / 2), 2) +
+        math.cos(toRadians(firstLatitude)) *
+            math.cos(toRadians(secondLatitude)) *
+            math.pow(math.sin(longitudeDifference / 2), 2);
+    return 6371 * 2 * math.atan2(math.sqrt(haversine), math.sqrt(1 - haversine));
+  }
+
   Future<void> _placeOrder() async {
-    final delivery = [_address.text.trim(), _details.text.trim()].where((part) => part.isNotEmpty).join(' ');
-    if (_name.text.trim().isEmpty || _phone.text.trim().isEmpty || delivery.isEmpty) {
+    final address = _address.text.trim();
+    final delivery = [address, _details.text.trim()].where((part) => part.isNotEmpty).join(' ');
+    if (_name.text.trim().isEmpty || _phone.text.trim().isEmpty || address.isEmpty) {
       setState(() => _error = 'กรุณากรอกชื่อ เบอร์โทร และที่อยู่จัดส่ง'); return;
+    }
+    if (_items.isEmpty) {
+      setState(() => _error = 'ตะกร้าว่าง'); return;
     }
     setState(() { _loading = true; _error = null; });
     try {
+      final storeLatitude = double.tryParse('${_pharmacy['latitude']}');
+      final storeLongitude = double.tryParse('${_pharmacy['longitude']}');
+      if (storeLatitude == null || storeLongitude == null ||
+          !storeLatitude.isFinite || !storeLongitude.isFinite) {
+        throw Exception('ร้านค้าไม่มีพิกัดที่อยู่ จึงไม่สามารถตรวจสอบระยะจัดส่งได้');
+      }
+
+      final destination = _deliveryLatitude != null && _deliveryLongitude != null
+          ? (latitude: _deliveryLatitude!, longitude: _deliveryLongitude!)
+          : await _geocodeDeliveryAddress(address);
+      final deliveryDistance = _distanceInKilometers(
+        storeLatitude,
+        storeLongitude,
+        destination.latitude,
+        destination.longitude,
+      );
+      if (deliveryDistance > 5) {
+        throw Exception('ที่อยู่จัดส่งอยู่ห่างจากร้าน ${deliveryDistance.toStringAsFixed(2)} กม. ร้านจัดส่งได้ไม่เกิน 5 กม.');
+      }
+
       final response = await ApiClient.instance.post('/orders/checkout', data: {
         'receiver_name': _name.text.trim(),
         'receiver_phone': _phone.text.trim(),
         'delivery_address': delivery,
+        'delivery_latitude': destination.latitude,
+        'delivery_longitude': destination.longitude,
         'payment_method': _payment,
       });
       final order = Map<String, dynamic>.from(response['data'] as Map? ?? {});
@@ -209,7 +405,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         context.go('/orders');
       }
     } catch (error) {
-      setState(() => _error = apiError(error));
+      if (mounted) setState(() => _error = apiError(error));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -229,6 +425,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             controller: _address,
             minLines: 2,
             maxLines: 4,
+            onChanged: (_) {
+              _deliveryLatitude = null;
+              _deliveryLongitude = null;
+            },
             decoration: InputDecoration(
               labelText: 'ที่อยู่หลัก',
               alignLabelWithHint: true,

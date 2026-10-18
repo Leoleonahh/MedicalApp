@@ -73,7 +73,16 @@ class _NewStoreProductScreenState extends State<NewStoreProductScreen> {
       const SizedBox(height: 12),
       DropdownButtonFormField<String>(initialValue: _typeId, decoration: const InputDecoration(labelText: 'ประเภทสินค้า'), items: _types.map((type) => DropdownMenuItem(value: '${type['typepro_id']}', child: Text('${type['type_name']}'))).toList(), onChanged: (value) => setState(() => _typeId = value)),
       const SizedBox(height: 12),
-      TextField(controller: _description, minLines: 2, maxLines: 4, decoration: const InputDecoration(labelText: 'รายละเอียด')),
+      TextField(
+        controller: _description,
+        minLines: 2,
+        maxLines: 4,
+        decoration: const InputDecoration(
+          labelText: 'รายละเอียดสินค้า',
+          hintText: 'กรอกรายละเอียดสินค้า (ไม่บังคับ)',
+          alignLabelWithHint: true,
+        ),
+      ),
       const SizedBox(height: 12),
       TextField(controller: _price, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'ราคา')),
       const SizedBox(height: 12),

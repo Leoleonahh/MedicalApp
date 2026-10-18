@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api_client.dart';
+import '../../core/theme.dart';
 import '../../core/widgets.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -16,6 +18,7 @@ class _ResultScreenState extends State<ResultScreen> {
   bool _loading = true;
   String? _error;
   Map<String, dynamic> _result = {};
+  final Set<String> _selectedMedicines = {};
 
   @override
   void initState() { super.initState(); _load(); }
@@ -28,13 +31,73 @@ class _ResultScreenState extends State<ResultScreen> {
     finally { if (mounted) setState(() => _loading = false); }
   }
 
-  void _openNearbyPharmacies(Map<String, dynamic> wound) {
-    final queryParameters = <String, String>{'nearby': 'true'};
-    if (wound['latitude'] != null && wound['longitude'] != null) {
-      queryParameters['latitude'] = wound['latitude'].toString();
-      queryParameters['longitude'] = wound['longitude'].toString();
+  Future<void> _openNearbyPharmacies(Map<String, dynamic> wound) async {
+    final queryParameters = <String, dynamic>{'nearby': 'true'};
+    var latitude = double.tryParse('${wound['latitude']}');
+    var longitude = double.tryParse('${wound['longitude']}');
+    if (latitude == null || longitude == null) {
+      try {
+        if (!await Geolocator.isLocationServiceEnabled()) {
+          throw Exception('กรุณาเปิด Location เพื่อค้นหาร้านขายยาใกล้เคียง');
+        }
+        var permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+        if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+          throw Exception('ไม่ได้รับอนุญาตให้เข้าถึงตำแหน่ง');
+        }
+        final position = await Geolocator.getCurrentPosition();
+        latitude = position.latitude;
+        longitude = position.longitude;
+      } catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error.toString().replaceFirst('Exception: ', ''))),
+          );
+        }
+        return;
+      }
     }
+    queryParameters['latitude'] = latitude.toString();
+    queryParameters['longitude'] = longitude.toString();
+    if (_selectedMedicines.isNotEmpty) {
+      queryParameters['medicine'] = _selectedMedicines.toList();
+    }
+    if (!mounted) return;
     context.go(Uri(path: '/shop', queryParameters: queryParameters).toString());
+  }
+
+  Future<void> _showHotlines() async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                const Expanded(child: Text('สายด่วนฉุกเฉิน', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800))),
+                IconButton(onPressed: () => Navigator.pop(dialogContext), tooltip: 'ปิด', icon: const Icon(Icons.close)),
+              ]),
+              const SizedBox(height: 8),
+              const Text('อุบัติเหตุ เจ็บป่วยฉุกเฉิน'),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => launchUrl(Uri(scheme: 'tel', path: '1669')),
+                  icon: const Icon(Icons.call_outlined),
+                  label: const Text('โทร 1669'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -45,6 +108,7 @@ class _ResultScreenState extends State<ResultScreen> {
     final image = wound['image_path']?.toString();
     final apiRoot = ApiClient.instance.dio.options.baseUrl;
     final medicines = (recommendation['pro_reccom']?.toString() ?? '').split(',').map((value) => value.trim()).where((value) => value.isNotEmpty).toList();
+    final confidence = double.tryParse('${prediction['confidence']}');
     final label = prediction['predict_label']?.toString() ?? '';
     final isLargeCut = prediction['length'] == 'ยาว' && prediction['depth'] == 'ลึก';
     final references = label.contains('แผลฉีกขาด')
@@ -67,7 +131,7 @@ class _ResultScreenState extends State<ResultScreen> {
       Card(child: Padding(padding: const EdgeInsets.all(18), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(prediction['predict_label']?.toString() ?? 'ไม่พบผลประเมิน', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 21)),
         const SizedBox(height: 6),
-        Text('ความมั่นใจ ${prediction['confidence'] ?? '-'}% • ความเสี่ยง ${recommendation['risk'] ?? 'ไม่ระบุ'}'),
+        Text('ความเชื่อมั่น ${confidence?.toStringAsFixed(2) ?? '-'}%'),
       ]))),
       const SizedBox(height: 14),
       Card(child: Padding(padding: const EdgeInsets.all(18), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -79,7 +143,20 @@ class _ResultScreenState extends State<ResultScreen> {
       const SizedBox(height: 14),
       Card(child: Padding(padding: const EdgeInsets.all(18), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('ยาและเวชภัณฑ์แนะนำ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-        for (final medicine in medicines) ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.medication_outlined), title: Text(medicine)),
+        if (medicines.isEmpty) const Text('ไม่มีข้อมูลยาที่แนะนำ')
+        else for (final medicine in medicines) CheckboxListTile(
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          value: _selectedMedicines.contains(medicine),
+          title: Text(medicine),
+          onChanged: (selected) => setState(() {
+            if (selected == true) {
+              _selectedMedicines.add(medicine);
+            } else {
+              _selectedMedicines.remove(medicine);
+            }
+          }),
+        ),
       ]))),
       if (references.isNotEmpty) ...[
         const SizedBox(height: 14),
@@ -93,10 +170,39 @@ class _ResultScreenState extends State<ResultScreen> {
           ),
         ]))),
       ],
+      const SizedBox(height: 8),
+      const Text('ความช่วยเหลือเพิ่มเติม', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
       const SizedBox(height: 12),
-      OutlinedButton.icon(onPressed: () => _openNearbyPharmacies(wound), icon: const Icon(Icons.local_pharmacy_outlined), label: const Text('ร้านขายยาใกล้เคียง')),
-      OutlinedButton.icon(onPressed: () => context.push('/hospital'), icon: const Icon(Icons.local_hospital_outlined), label: const Text('สถานพยาบาลใกล้เคียง')),
-      OutlinedButton.icon(onPressed: () => launchUrl(Uri.parse('tel:1669')), icon: const Icon(Icons.call_outlined), label: const Text('โทรสายด่วน 1669')),
+      SizedBox(
+        width: double.infinity,
+        height: 54,
+        child: FilledButton.icon(
+          onPressed: () => _openNearbyPharmacies(wound),
+          icon: const Icon(Icons.local_pharmacy_outlined),
+          label: const Text('ค้นหาร้านขายยาใกล้เคียง'),
+        ),
+      ),
+      const SizedBox(height: 10),
+      SizedBox(
+        width: double.infinity,
+        height: 54,
+        child: OutlinedButton.icon(
+          onPressed: () => context.push('/hospital'),
+          icon: const Icon(Icons.local_hospital_outlined),
+          label: const Text('ค้นหาสถานพยาบาลใกล้เคียง'),
+        ),
+      ),
+      const SizedBox(height: 10),
+      SizedBox(
+        width: double.infinity,
+        height: 54,
+        child: FilledButton.icon(
+          style: FilledButton.styleFrom(backgroundColor: AppColors.danger, foregroundColor: Colors.white),
+          onPressed: _showHotlines,
+          icon: const Icon(Icons.call_outlined),
+          label: const Text('สายด่วนฉุกเฉิน 1669'),
+        ),
+      ),
     ]));
   }
 }

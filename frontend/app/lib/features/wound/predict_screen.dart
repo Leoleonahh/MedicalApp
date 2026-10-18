@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/api_client.dart';
+import '../../core/theme.dart';
 
 class PredictScreen extends StatefulWidget {
   const PredictScreen({super.key});
@@ -48,6 +49,55 @@ class _PredictScreenState extends State<PredictScreen> {
     finally { if (mounted) setState(() => _locating = false); }
   }
 
+  Future<void> _selectIncidentDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _incidentDate ?? DateTime.now(),
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),
+    );
+    if (date != null && mounted) setState(() => _incidentDate = date);
+  }
+
+  Widget _optionalAction({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback? onTap,
+    Widget? trailing,
+  }) => Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 76),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(color: AppColors.pinkSoft, borderRadius: BorderRadius.circular(12)),
+                child: Icon(icon, color: AppColors.pink),
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 3),
+                Text(subtitle, style: const TextStyle(color: AppColors.muted, fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
+              ])),
+              const SizedBox(width: 8),
+              trailing ?? const Icon(Icons.chevron_right, color: AppColors.muted),
+            ]),
+          ),
+        ),
+      );
+
   Future<void> _submit() async {
     if (_imageBytes == null || _imageName == null) { setState(() => _error = 'กรุณาเลือกรูปบาดแผล'); return; }
     setState(() { _loading = true; _error = null; });
@@ -80,8 +130,30 @@ class _PredictScreenState extends State<PredictScreen> {
       const SizedBox(height: 12),
       TextField(controller: _site, decoration: const InputDecoration(labelText: 'ตำแหน่งของบาดแผล (ไม่บังคับ)')),
       const SizedBox(height: 12),
-      OutlinedButton.icon(onPressed: () async { final date = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(1950), lastDate: DateTime.now()); if (date != null) setState(() => _incidentDate = date); }, icon: const Icon(Icons.calendar_today_outlined), label: Text(_incidentDate == null ? 'เลือกวันที่เกิดแผล' : '${_incidentDate!.day}/${_incidentDate!.month}/${_incidentDate!.year}')),
-      OutlinedButton.icon(onPressed: _locating ? null : _getLocation, icon: const Icon(Icons.my_location), label: Text(_locating ? 'กำลังค้นหาตำแหน่ง...' : _position == null ? 'เพิ่มตำแหน่งปัจจุบัน (ไม่บังคับ)' : '${_position!.latitude.toStringAsFixed(5)}, ${_position!.longitude.toStringAsFixed(5)}')),
+      _optionalAction(
+        icon: Icons.calendar_month_outlined,
+        title: 'วันที่เกิดบาดแผล',
+        subtitle: _incidentDate == null
+            ? 'เลือกวันที่ (ไม่บังคับ)'
+            : '${_incidentDate!.day.toString().padLeft(2, '0')}/${_incidentDate!.month.toString().padLeft(2, '0')}/${_incidentDate!.year}',
+        onTap: _selectIncidentDate,
+      ),
+      const SizedBox(height: 10),
+      _optionalAction(
+        icon: Icons.my_location_outlined,
+        title: 'ตำแหน่งปัจจุบัน',
+        subtitle: _locating
+            ? 'กำลังค้นหาตำแหน่ง...'
+            : _position == null
+                ? 'เพิ่มตำแหน่งบาดแผล (ไม่บังคับ)'
+                : '${_position!.latitude.toStringAsFixed(5)}, ${_position!.longitude.toStringAsFixed(5)}',
+        onTap: _locating ? null : _getLocation,
+        trailing: _locating
+            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+            : _position == null
+                ? const Icon(Icons.chevron_right, color: AppColors.muted)
+                : const Icon(Icons.check_circle_outline, color: AppColors.green),
+      ),
       if (_error != null) Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Text(_error!, style: const TextStyle(color: Colors.red))),
       const SizedBox(height: 10),
       FilledButton(onPressed: _loading ? null : _submit, child: Text(_loading ? 'กำลังวิเคราะห์...' : 'วิเคราะห์บาดแผล')),

@@ -68,6 +68,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final _oldPassword = TextEditingController();
   final _newPassword = TextEditingController();
   final _confirmPassword = TextEditingController();
+  bool _obscureOldPassword = true;
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
   bool _loading = false;
   String? _error;
 
@@ -89,11 +92,41 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('เปลี่ยนรหัสผ่าน')), body: ListView(padding: const EdgeInsets.all(20), children: [
-    TextField(controller: _oldPassword, obscureText: true, decoration: const InputDecoration(labelText: 'รหัสผ่านเดิม')),
+    TextField(
+      controller: _oldPassword,
+      obscureText: _obscureOldPassword,
+      decoration: InputDecoration(
+        labelText: 'รหัสผ่านเดิม',
+        suffixIcon: IconButton(
+          icon: Icon(_obscureOldPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+          onPressed: () => setState(() => _obscureOldPassword = !_obscureOldPassword),
+        ),
+      ),
+    ),
     const SizedBox(height: 12),
-    TextField(controller: _newPassword, obscureText: true, decoration: const InputDecoration(labelText: 'รหัสผ่านใหม่')),
+    TextField(
+      controller: _newPassword,
+      obscureText: _obscureNewPassword,
+      decoration: InputDecoration(
+        labelText: 'รหัสผ่านใหม่',
+        suffixIcon: IconButton(
+          icon: Icon(_obscureNewPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+          onPressed: () => setState(() => _obscureNewPassword = !_obscureNewPassword),
+        ),
+      ),
+    ),
     const SizedBox(height: 12),
-    TextField(controller: _confirmPassword, obscureText: true, decoration: const InputDecoration(labelText: 'ยืนยันรหัสผ่านใหม่')),
+    TextField(
+      controller: _confirmPassword,
+      obscureText: _obscureConfirmPassword,
+      decoration: InputDecoration(
+        labelText: 'ยืนยันรหัสผ่านใหม่',
+        suffixIcon: IconButton(
+          icon: Icon(_obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+          onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+        ),
+      ),
+    ),
     if (_error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_error!, style: const TextStyle(color: Colors.red))),
     const SizedBox(height: 18),
     FilledButton(onPressed: _loading ? null : _save, child: Text(_loading ? 'กำลังบันทึก...' : 'เปลี่ยนรหัสผ่าน')),

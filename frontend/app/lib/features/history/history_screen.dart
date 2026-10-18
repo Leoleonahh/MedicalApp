@@ -35,6 +35,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
+  String _formatDate(dynamic value) {
+    if (value == null || value.toString().isEmpty) return '-';
+    final date = DateTime.tryParse(value.toString());
+    if (date == null) return '-';
+    final buddhistYear = date.year + 543;
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/$buddhistYear';
+  }
+
   @override
   Widget build(BuildContext context) {
     final apiRoot = ApiClient.instance.dio.options.baseUrl;
@@ -55,33 +63,70 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         itemBuilder: (context, index) {
                           final item = _records[index];
                           final imageId = item['image_id'] ?? item['id'];
-                          final label = item['predict_label'] ?? item['wound_type'] ?? 'ผลประเมินบาดแผล';
                           final imagePath = item['image_path']?.toString();
-                          return Card(child: ListTile(
-                            leading: imagePath == null || imagePath.isEmpty
-                                ? const CircleAvatar(child: Icon(Icons.healing_outlined))
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      '$apiRoot/wounds/${Uri.encodeComponent(imagePath)}',
-                                      width: 52,
-                                      height: 52,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => const SizedBox(
-                                        width: 52,
-                                        height: 52,
-                                        child: Icon(Icons.image_not_supported_outlined),
-                                      ),
-                                    ),
+                          final prediction = Map<String, dynamic>.from(item['latest_prediction'] as Map? ?? {});
+                          final label = prediction['predict_label']?.toString();
+                          final woundSite = item['wound_site']?.toString();
+                          return Card(
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(18),
+                              onTap: imageId == null ? null : () => context.push('/result/$imageId'),
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: imagePath == null || imagePath.isEmpty
+                                        ? Container(width: 88, height: 88, color: Colors.black12, child: const Icon(Icons.healing_outlined))
+                                        : Image.network(
+                                            '$apiRoot/wounds/${Uri.encodeComponent(imagePath)}',
+                                            width: 88,
+                                            height: 88,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) => Container(width: 88, height: 88, color: Colors.black12, child: const Icon(Icons.image_not_supported_outlined)),
+                                          ),
                                   ),
-                            title: Text(label.toString(), style: const TextStyle(fontWeight: FontWeight.w700)),
-                            subtitle: Text(item['created_at']?.toString() ?? item['upload_date']?.toString() ?? ''),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: imageId == null ? null : () => context.push('/result/$imageId'),
-                          ));
+                                  const SizedBox(width: 14),
+                                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                    if (label != null && label.isNotEmpty) ...[
+                                      Text(label, style: const TextStyle(fontWeight: FontWeight.w800)),
+                                      const SizedBox(height: 8),
+                                    ],
+                                    _HistoryDateRow(label: 'วันที่อัปโหลด', value: _formatDate(item['upload_date'])),
+                                    const SizedBox(height: 4),
+                                    _HistoryDateRow(
+                                      label: 'วันที่เกิดบาดแผล',
+                                      value: item['incident_date'] == null ? 'ไม่ได้ระบุ' : _formatDate(item['incident_date']),
+                                    ),
+                                    if (woundSite != null && woundSite.isNotEmpty) ...[
+                                      const SizedBox(height: 6),
+                                      Text('ตำแหน่ง: $woundSite', maxLines: 2, overflow: TextOverflow.ellipsis),
+                                    ],
+                                  ])),
+                                  const Padding(padding: EdgeInsets.only(top: 30), child: Icon(Icons.chevron_right)),
+                                ]),
+                              ),
+                            ),
+                          );
                         },
                       ),
                     ),
     );
   }
+}
+
+class _HistoryDateRow extends StatelessWidget {
+  const _HistoryDateRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.black54, fontSize: 12)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
+        ],
+      );
 }

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/api_client.dart';
@@ -8,11 +9,12 @@ import '../../core/theme.dart';
 import '../../core/widgets.dart';
 
 class PharmacyListScreen extends StatefulWidget {
-  const PharmacyListScreen({super.key, this.nearby = false, this.latitude, this.longitude});
+  const PharmacyListScreen({super.key, this.nearby = false, this.latitude, this.longitude, this.selectedMedicines = const []});
 
   final bool nearby;
   final double? latitude;
   final double? longitude;
+  final List<String> selectedMedicines;
 
   @override
   State<PharmacyListScreen> createState() => _PharmacyListScreenState();
@@ -22,48 +24,74 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
   bool _loading = true;
   String? _error;
   List<Map<String, dynamic>> _pharmacies = [];
+  double? _originLatitude;
+  double? _originLongitude;
 
   @override
   void initState() {
     super.initState();
+    _originLatitude = widget.latitude;
+    _originLongitude = widget.longitude;
     _load();
   }
 
   Future<void> _load() async {
     setState(() { _loading = true; _error = null; });
     try {
+      if (_originLatitude == null || _originLongitude == null) {
+        if (!await Geolocator.isLocationServiceEnabled()) {
+          throw Exception('กรุณาเปิด Location เพื่อค้นหาร้านขายยาในระยะจัดส่ง');
+        }
+        var permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+        if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+          throw Exception('ต้องอนุญาต Location เพื่อแสดงร้านขายยาภายในระยะจัดส่ง');
+        }
+        final position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 10),
+          ),
+        );
+        _originLatitude = position.latitude;
+        _originLongitude = position.longitude;
+      }
+
       final response = await ApiClient.instance.get('/pharmacies/verified');
       final pharmacies = asMapList(response['data']);
-      if (widget.nearby) {
-        pharmacies.sort((first, second) {
-          final firstDistance = _distanceTo(first);
-          final secondDistance = _distanceTo(second);
-          if (firstDistance == null && secondDistance == null) return 0;
-          if (firstDistance == null) return 1;
-          if (secondDistance == null) return -1;
-          return firstDistance.compareTo(secondDistance);
-        });
-      }
-      setState(() => _pharmacies = widget.nearby ? pharmacies.take(3).toList() : pharmacies);
+      pharmacies.sort((first, second) {
+        final firstDistance = _distanceTo(first);
+        final secondDistance = _distanceTo(second);
+        if (firstDistance == null && secondDistance == null) return 0;
+        if (firstDistance == null) return 1;
+        if (secondDistance == null) return -1;
+        return firstDistance.compareTo(secondDistance);
+      });
+      final pharmaciesInRange = pharmacies
+          .where((pharmacy) => (_distanceTo(pharmacy) ?? double.infinity) <= 5)
+          .toList();
+      setState(() => _pharmacies = widget.nearby ? pharmaciesInRange.take(3).toList() : pharmaciesInRange);
     } catch (error) {
-      setState(() => _error = apiError(error));
+      if (mounted) setState(() => _error = apiError(error).replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
   double? _distanceTo(Map<String, dynamic> pharmacy) {
-    if (widget.latitude == null || widget.longitude == null) return null;
+    if (_originLatitude == null || _originLongitude == null) return null;
     final pharmacyLatitude = double.tryParse('${pharmacy['latitude']}');
     final pharmacyLongitude = double.tryParse('${pharmacy['longitude']}');
     if (pharmacyLatitude == null || pharmacyLongitude == null) return null;
 
     const earthRadius = 6371.0;
     double toRadians(double value) => value * math.pi / 180;
-    final latitudeDifference = toRadians(pharmacyLatitude - widget.latitude!);
-    final longitudeDifference = toRadians(pharmacyLongitude - widget.longitude!);
+    final latitudeDifference = toRadians(pharmacyLatitude - _originLatitude!);
+    final longitudeDifference = toRadians(pharmacyLongitude - _originLongitude!);
     final haversine = math.pow(math.sin(latitudeDifference / 2), 2) +
-        math.cos(toRadians(widget.latitude!)) *
+      math.cos(toRadians(_originLatitude!)) *
             math.cos(toRadians(pharmacyLatitude)) *
             math.pow(math.sin(longitudeDifference / 2), 2);
     return earthRadius * 2 * math.atan2(math.sqrt(haversine), math.sqrt(1 - haversine));
@@ -71,13 +99,20 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(widget.nearby ? 'ร้านขายยาใกล้เคียง' : 'ร้านขายยา'), actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))]),
+        appBar: AppBar(title: Text(widget.nearby ? 'ร้านขายยาใกล้บาดแผล' : 'ร้านขายยาใกล้ฉัน'), actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))]),
         body: _loading
             ? const PageLoading()
             : _error != null
                 ? ErrorMessage(_error!, onRetry: _load)
                 : _pharmacies.isEmpty
-                    ? const Center(child: Text('ยังไม่มีร้านขายยาที่เปิดให้บริการ'))
+                    ? Center(
+                        child: Text(
+                            widget.nearby
+                              ? 'ไม่พบร้านขายยาภายในระยะ 5 กม. จากตำแหน่งบาดแผล'
+                              : 'ไม่พบร้านขายยาภายในระยะจัดส่ง 5 กม. จากตำแหน่งปัจจุบัน',
+                          textAlign: TextAlign.center,
+                        ),
+                      )
                     : RefreshIndicator(
                         onRefresh: _load,
                         child: ListView.separated(
@@ -96,7 +131,10 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
                                 if (distance != null) 'ห่างจากตำแหน่งแผล ${distance.toStringAsFixed(2)} กม.',
                               ].join(' • ')),
                               trailing: const Icon(Icons.chevron_right),
-                              onTap: () => context.push('/pharmacies/${pharmacy['pharmacy_id']}/products', extra: pharmacy),
+                              onTap: () => context.push('/pharmacies/${pharmacy['pharmacy_id']}/products', extra: {
+                                'pharmacy': pharmacy,
+                                'selectedMedicines': widget.selectedMedicines,
+                              }),
                             ));
                           },
                         ),
@@ -105,9 +143,10 @@ class _PharmacyListScreenState extends State<PharmacyListScreen> {
 }
 
 class PharmacyProductsScreen extends StatefulWidget {
-  const PharmacyProductsScreen({super.key, required this.pharmacyId, this.pharmacy = const {}});
+  const PharmacyProductsScreen({super.key, required this.pharmacyId, this.pharmacy = const {}, this.selectedMedicines = const []});
   final String pharmacyId;
   final Map<String, dynamic> pharmacy;
+  final List<String> selectedMedicines;
 
   @override
   State<PharmacyProductsScreen> createState() => _PharmacyProductsScreenState();
@@ -118,6 +157,7 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
   String? _error;
   Map<String, dynamic> _pharmacy = {};
   List<Map<String, dynamic>> _products = [];
+  int _cartCount = 0;
   String? _woundType;
   List<String> _recommendedNames = [];
   bool _loadingRecommendations = false;
@@ -127,6 +167,15 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
     super.initState();
     _pharmacy = widget.pharmacy;
     _load();
+    _loadCartCount();
+  }
+
+  Future<void> _loadCartCount() async {
+    try {
+      final response = await ApiClient.instance.get('/cart');
+      final cart = Map<String, dynamic>.from(response['data'] as Map? ?? {});
+      if (mounted) setState(() => _cartCount = int.tryParse('${cart['total_quantity']}') ?? 0);
+    } catch (_) {}
   }
 
   Future<void> _load() async {
@@ -149,6 +198,7 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
         'pharmacy_product_id': product['pharmacy_product_id'],
         'quantity': 1,
       });
+      await _loadCartCount();
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('เพิ่มสินค้าลงตะกร้าแล้ว')));
     } catch (error) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(apiError(error))));
@@ -167,14 +217,18 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
   }
 
   List<Map<String, dynamic>> get _visibleProducts {
-    if (_woundType == null) return _products;
     String normalize(String value) => value.toLowerCase().replaceAll(RegExp(r'[\s/.-]+'), '');
     return _products.where((product) {
       final name = normalize(product['product_name']?.toString() ?? '');
-      return _recommendedNames.any((medicine) {
+      final matchesSelectedMedicine = widget.selectedMedicines.isEmpty || widget.selectedMedicines.any((medicine) {
+        final selected = normalize(medicine);
+        return name.contains(selected) || selected.contains(name);
+      });
+      final matchesWoundType = _woundType == null || _recommendedNames.any((medicine) {
         final recommended = normalize(medicine);
         return name.contains(recommended) || recommended.contains(name);
       });
+      return matchesSelectedMedicine && matchesWoundType;
     }).toList();
   }
 
@@ -186,7 +240,11 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
             IconButton(
               onPressed: () => context.push('/cart'),
               tooltip: 'ตะกร้าสินค้า',
-              icon: const Icon(Icons.shopping_cart_outlined),
+              icon: Badge(
+                isLabelVisible: _cartCount > 0,
+                label: Text(_cartCount > 99 ? '99+' : '$_cartCount'),
+                child: const Icon(Icons.shopping_cart_outlined),
+              ),
             ),
           ],
         ),
@@ -195,6 +253,14 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
             : _error != null
                 ? ErrorMessage(_error!, onRetry: _load)
                 : Column(children: [
+                    if (widget.selectedMedicines.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('ยาที่เลือก: ${widget.selectedMedicines.join(', ')}'),
+                        ),
+                      ),
                     Padding(padding: const EdgeInsets.fromLTRB(16, 10, 16, 6), child: DropdownButtonFormField<String>(
                       initialValue: _woundType,
                       decoration: const InputDecoration(labelText: 'กรองสินค้าตามบาดแผล'),
@@ -219,6 +285,7 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
                         itemBuilder: (context, index) {
                           final product = _visibleProducts[index];
                           final stock = int.tryParse('${product['stock']}') ?? 0;
+                          final description = product['description']?.toString().trim();
                           final image = product['image']?.toString();
                           final apiRoot = ApiClient.instance.dio.options.baseUrl;
                           return Card(child: ListTile(
@@ -244,7 +311,19 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
                                     ),
                                   ),
                             title: Text(product['product_name']?.toString() ?? '-', style: const TextStyle(fontWeight: FontWeight.w700)),
-                            subtitle: Text('${product['type'] ?? 'สินค้า'} • คงเหลือ $stock ชิ้น\n฿${product['price'] ?? 0}'),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  description == null || description.isEmpty ? 'ไม่มีรายละเอียดสินค้า' : description,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text('${product['type'] ?? 'สินค้า'} • คงเหลือ $stock ชิ้น • ฿${product['price'] ?? 0}'),
+                              ],
+                            ),
                             isThreeLine: true,
                             trailing: IconButton(onPressed: stock > 0 ? () => _addToCart(product) : null, icon: const Icon(Icons.add_shopping_cart)),
                           ));

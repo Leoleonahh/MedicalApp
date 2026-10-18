@@ -179,6 +179,174 @@
   color: var(--muted);
 }
 
+.cs-location-section {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.cs-location-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cs-location-heading h2 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+
+.cs-location-heading p,
+.cs-location-label,
+.cs-location-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cs-current-location {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cs-current-location:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.cs-location-search {
+  min-width: 0;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+
+.cs-location-search input {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  height: 44px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  outline: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--text);
+  font: inherit;
+}
+
+.cs-location-search button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #286b54;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cs-location-search button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.cs-location-results {
+  max-height: 190px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.cs-location-results button {
+  width: 100%;
+  display: block;
+  padding: 11px 13px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.cs-location-results button:last-child {
+  border-bottom: 0;
+}
+
+.cs-location-results button:hover {
+  background: var(--surface-soft);
+}
+
+.cs-map {
+  width: 100%;
+  height: 340px;
+  z-index: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.cs-location-label {
+  overflow-wrap: anywhere;
+  color: #286b54;
+  font-weight: 700;
+}
+
+.cs-location-error {
+  margin: 0;
+  color: #b42318;
+  font-size: 13px;
+}
+
+.cs-row.cs-coords label {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.cs-row.cs-coords input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cs-location-hint {
+  display: block;
+  text-align: center;
+}
+
 /* ================================
    Small Button
 ================================ */
@@ -331,6 +499,27 @@
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
+  }
+
+  .cs-location-section {
+    padding: 14px;
+  }
+
+  .cs-location-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cs-current-location {
+    width: 100%;
+  }
+
+  .cs-map {
+    height: 280px;
+  }
+
+  .cs-row.cs-coords {
+    flex-direction: row;
   }
 
   .cs-btn.small {

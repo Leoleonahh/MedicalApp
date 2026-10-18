@@ -51,9 +51,13 @@ class _MedicalAppState extends State<MedicalApp> {
             nearby: state.uri.queryParameters['nearby'] == 'true',
             latitude: double.tryParse(state.uri.queryParameters['latitude'] ?? ''),
             longitude: double.tryParse(state.uri.queryParameters['longitude'] ?? ''),
+            selectedMedicines: state.uri.queryParametersAll['medicine'] ?? const [],
           )),
           GoRoute(path: '/history', builder: (_, __) => const HistoryScreen()),
           GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
+          GoRoute(path: '/orders', builder: (_, __) => const OrdersScreen()),
+          GoRoute(path: '/orders/:id', builder: (_, state) => OrderDetailScreen(orderId: state.pathParameters['id']!)),
+          GoRoute(path: '/payment/:id', builder: (_, state) => PaymentScreen(orderId: state.pathParameters['id']!)),
         ],
       ),
       GoRoute(path: '/predict', builder: (_, __) => const PredictScreen()),
@@ -61,13 +65,15 @@ class _MedicalAppState extends State<MedicalApp> {
       GoRoute(path: '/hospital', builder: (_, __) => const HospitalScreen()),
       GoRoute(path: '/pharmacies/:id/products', builder: (_, state) => PharmacyProductsScreen(
         pharmacyId: state.pathParameters['id']!,
-        pharmacy: state.extra is Map ? Map<String, dynamic>.from(state.extra as Map) : const {},
+        pharmacy: state.extra is Map
+            ? Map<String, dynamic>.from((state.extra as Map)['pharmacy'] as Map? ?? state.extra as Map)
+            : const {},
+        selectedMedicines: state.extra is Map
+            ? List<String>.from((state.extra as Map)['selectedMedicines'] as List? ?? const [])
+            : const [],
       )),
       GoRoute(path: '/cart', builder: (_, __) => const CartScreen()),
       GoRoute(path: '/checkout', builder: (_, __) => const CheckoutScreen()),
-      GoRoute(path: '/orders', builder: (_, __) => const OrdersScreen()),
-      GoRoute(path: '/orders/:id', builder: (_, state) => OrderDetailScreen(orderId: state.pathParameters['id']!)),
-      GoRoute(path: '/payment/:id', builder: (_, state) => PaymentScreen(orderId: state.pathParameters['id']!)),
       GoRoute(path: '/pharmacy/register', builder: (_, __) => const PharmacyRegistrationScreen()),
       GoRoute(path: '/pharmacy/manage', builder: (_, __) => const StoreOwnerScreen()),
       GoRoute(path: '/pharmacy/:id/dashboard', builder: (_, state) => StoreDashboardScreen(pharmacyId: state.pathParameters['id']!)),
@@ -97,7 +103,7 @@ class AppShell extends StatelessWidget {
 
   int get _selectedIndex {
     if (location.startsWith('/shop')) return 1;
-    if (location.startsWith('/history')) return 2;
+    if (location.startsWith('/history') || location.startsWith('/orders')) return 2;
     if (location.startsWith('/profile')) return 3;
     return 0;
   }

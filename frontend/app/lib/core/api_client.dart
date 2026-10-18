@@ -34,7 +34,10 @@ class ApiClient {
   static final ApiClient instance = ApiClient._();
   late final Dio dio;
 
-  Future<Map<String, dynamic>> get(String path, {Map<String, dynamic>? query}) async {
+  Future<Map<String, dynamic>> get(
+    String path, {
+    Map<String, dynamic>? query,
+  }) async {
     final response = await dio.get<dynamic>(path, queryParameters: query);
     return _map(response.data);
   }
@@ -79,17 +82,24 @@ class ApiClient {
     required Uint8List bytes,
     required String filename,
     Map<String, dynamic> fields = const {},
+    String method = 'POST',
   }) async {
     final form = FormData.fromMap({
       ...fields,
       fieldName: MultipartFile.fromBytes(bytes, filename: filename),
     });
-    final response = await dio.post<dynamic>(path, data: form);
+    final response = await dio.request<dynamic>(
+      path,
+      data: form,
+      options: Options(method: method),
+    );
     return _map(response.data);
   }
 
   static Map<String, dynamic> _map(dynamic value) {
-    if (value is Map<String, dynamic>) return value;
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
     if (value is Map) return Map<String, dynamic>.from(value);
     return {'data': value};
   }
@@ -98,8 +108,12 @@ class ApiClient {
 String apiError(Object error) {
   if (error is DioException) {
     final data = error.response?.data;
-    if (data is Map && data['message'] != null) return data['message'].toString();
-    if (data is Map && data['error'] != null) return data['error'].toString();
+    if (data is Map && data['message'] != null) {
+      return data['message'].toString();
+    }
+    if (data is Map && data['error'] != null) {
+      return data['error'].toString();
+    }
     return error.message ?? 'เชื่อมต่อระบบไม่สำเร็จ';
   }
   return error.toString();

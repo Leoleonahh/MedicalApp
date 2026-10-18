@@ -51,3 +51,73 @@ class SectionTitle extends StatelessWidget {
         ],
       );
 }
+
+class DeliveryProofCard extends StatelessWidget {
+  const DeliveryProofCard({
+    super.key,
+    required this.fileName,
+    required this.apiRoot,
+  });
+
+  final String fileName;
+  final String apiRoot;
+
+  @override
+  Widget build(BuildContext context) {
+    final root = apiRoot.endsWith('/')
+        ? apiRoot.substring(0, apiRoot.length - 1)
+        : apiRoot;
+    final imageUrl =
+        '$root/uploads/delivery-proofs/${Uri.encodeComponent(fileName)}';
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.fact_check_outlined, color: AppColors.green),
+                SizedBox(width: 8),
+                Text(
+                  'หลักฐานการจัดส่ง',
+                  style: TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                imageUrl,
+                width: double.infinity,
+                height: 230,
+                fit: BoxFit.contain,
+                loadingBuilder: (context, child, progress) => progress == null
+                    ? child
+                    : const SizedBox(
+                        height: 230,
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                errorBuilder: (context, error, stackTrace) => const SizedBox(
+                  height: 150,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.broken_image_outlined, size: 32),
+                        SizedBox(height: 6),
+                        Text('ไม่สามารถโหลดรูปหลักฐานได้'),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
