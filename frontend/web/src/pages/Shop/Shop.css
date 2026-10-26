@@ -136,9 +136,39 @@
   color: var(--text);
 }
 
+.selected-medicines-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+}
+
 .selected-medicines h2 {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 18px;
+}
+
+.selected-medicines-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.selected-medicines-filter input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--primary);
+}
+
+.selected-medicines-hint {
+  margin: 7px 0 10px;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .selected-medicines ul {

@@ -5,6 +5,15 @@ import api from "../../api/axios";
 import "./ShopOrderDetail.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const allowedStatusTransitions = {
+  PENDING: ["PREPARING", "CANCELLED"],
+  PREPARING: ["SHIPPING", "CANCELLED"],
+  SHIPPING: ["DELIVERED"],
+  DELIVERED: [],
+  CANCELLED: [],
+};
+const skipStatusMessage =
+  "ห้ามข้ามขั้นตอน กรุณาเปลี่ยนสถานะตามลำดับ: รอจัดส่ง → กำลังเตรียมสินค้า → กำลังจัดส่ง → จัดส่งแล้ว";
 
 function ShopOrderDetail() {
   const { id } = useParams();
@@ -75,8 +84,14 @@ function ShopOrderDetail() {
   async function updateStatus(orderStatus) {
     if (!order) return;
 
+    if (!allowedStatusTransitions[order.status]?.includes(orderStatus)) {
+      alert(skipStatusMessage);
+      return;
+    }
+
     if (orderStatus === "DELIVERED" && !deliveryProof) {
-      setStatusError("กรุณาแนบรูปหลักฐานการจัดส่งก่อนเปลี่ยนสถานะเป็นจัดส่งแล้ว");
+      alert("กรุณาแนบรูปหลักฐานการจัดส่งก่อนยืนยันสถานะจัดส่งแล้ว");
+      setStatusError("");
       return;
     }
 
@@ -103,7 +118,13 @@ function ShopOrderDetail() {
       setDeliveryProof(null);
     } catch (error) {
       console.error("Failed to update pharmacy order status", error);
-      setStatusError(error.response?.data?.message || "ไม่สามารถอัปเดตสถานะ order ได้");
+      const message = error.response?.data?.message || "ไม่สามารถอัปเดตสถานะ order ได้";
+      if (message.startsWith("Cannot change status from")) {
+        alert(skipStatusMessage);
+        setStatusError("");
+      } else {
+        setStatusError(message);
+      }
     } finally {
       setUpdatingStatus(false);
     }

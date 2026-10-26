@@ -30,6 +30,7 @@ function Shop() {
   const [addingProductId, setAddingProductId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedWoundType, setSelectedWoundType] = useState("");
+  const [showOnlySelectedMedicines, setShowOnlySelectedMedicines] = useState(true);
   const [recommendedMedicineNames, setRecommendedMedicineNames] = useState([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
   const [recommendationError, setRecommendationError] = useState("");
@@ -179,6 +180,7 @@ function Shop() {
   const filteredProducts = searchFilteredProducts.filter((product) => {
     const productName = normalizeProductName(product.product_name || "");
     const matchesSelectedMedicine =
+      !showOnlySelectedMedicines ||
       selectedMedicines.length === 0 ||
       selectedMedicines.some((medicineName) => {
         const normalizedMedicineName = normalizeProductName(medicineName);
@@ -259,7 +261,20 @@ function Shop() {
 
         {selectedMedicines.length > 0 && (
           <section className="selected-medicines">
-            <h2>ยาที่เลือกจากผลวิเคราะห์</h2>
+            <div className="selected-medicines-heading">
+              <h2>ยาที่เลือกจากผลวิเคราะห์</h2>
+              <label className="selected-medicines-filter">
+                <input
+                  type="checkbox"
+                  checked={showOnlySelectedMedicines}
+                  onChange={(event) => setShowOnlySelectedMedicines(event.target.checked)}
+                />
+                <span>แสดงเฉพาะยาที่เลือก</span>
+              </label>
+            </div>
+            <p className="selected-medicines-hint">
+              ปิดตัวเลือกนี้เพื่อดูและเลือกซื้อสินค้าอื่นในร้าน
+            </p>
             <ul>
               {selectedMedicines.map((medicine) => (
                 <li key={medicine}>{medicine}</li>
@@ -278,7 +293,7 @@ function Shop() {
 
           {!loading && !error && products.length > 0 && filteredProducts.length === 0 && (
             <p>
-              {selectedMedicines.length > 0
+              {showOnlySelectedMedicines && selectedMedicines.length > 0
                 ? "ร้านนี้ยังไม่มีสินค้าที่ตรงกับยาที่เลือก"
                 : selectedWoundType
                 ? "ร้านนี้ยังไม่มีสินค้าที่ตรงกับยาที่แนะนำสำหรับบาดแผลนี้"

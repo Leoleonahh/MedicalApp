@@ -161,6 +161,7 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
   String? _woundType;
   List<String> _recommendedNames = [];
   bool _loadingRecommendations = false;
+  bool _showOnlySelectedMedicines = true;
 
   @override
   void initState() {
@@ -220,7 +221,10 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
     String normalize(String value) => value.toLowerCase().replaceAll(RegExp(r'[\s/.-]+'), '');
     return _products.where((product) {
       final name = normalize(product['product_name']?.toString() ?? '');
-      final matchesSelectedMedicine = widget.selectedMedicines.isEmpty || widget.selectedMedicines.any((medicine) {
+      final matchesSelectedMedicine =
+          !_showOnlySelectedMedicines ||
+          widget.selectedMedicines.isEmpty ||
+          widget.selectedMedicines.any((medicine) {
         final selected = normalize(medicine);
         return name.contains(selected) || selected.contains(name);
       });
@@ -254,12 +258,23 @@ class _PharmacyProductsScreenState extends State<PharmacyProductsScreen> {
                 ? ErrorMessage(_error!, onRetry: _load)
                 : Column(children: [
                     if (widget.selectedMedicines.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text('ยาที่เลือก: ${widget.selectedMedicines.join(', ')}'),
-                        ),
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text('ยาที่เลือก: ${widget.selectedMedicines.join(', ')}'),
+                            ),
+                          ),
+                          SwitchListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                            title: const Text('แสดงเฉพาะยาที่เลือก'),
+                            subtitle: const Text('ปิดเพื่อเลือกซื้อสินค้าอื่นในร้าน'),
+                            value: _showOnlySelectedMedicines,
+                            onChanged: (value) => setState(() => _showOnlySelectedMedicines = value),
+                          ),
+                        ],
                       ),
                     Padding(padding: const EdgeInsets.fromLTRB(16, 10, 16, 6), child: DropdownButtonFormField<String>(
                       initialValue: _woundType,
